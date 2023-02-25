@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+RUN dotnet tool install dotnet-script -g
+
+# Copy all db files
+COPY ./Detector.csx .
+
+ENTRYPOINT [ "dotnet-script", "Detector.csx", "--" ]

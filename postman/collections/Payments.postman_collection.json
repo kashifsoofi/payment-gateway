@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "cf00ebac-77fa-4d64-bdf6-089370e406d7",
+		"name": "Payments",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get All Content",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0cc10440-a8c6-4986-b025-d6fb09be78c4",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Contents count is 2\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.results.length).to.eql(2);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/api/contents",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"api",
+						"contents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Content",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "225ac9fa-b99c-4ce0-a3ef-80c3656b601a",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Content value is secure_environment_variable\", function () {",
+							"    var value = pm.environment.get(\"secure_environment_variable\");",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.value).to.eql(value);",
+							"    pm.expect(jsonData.value).to.eql(\"mysecurevalue\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": 100,\n\t\"value\": \"{{secure_environment_variable}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseUrl}}/api/contents",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"api",
+						"contents"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
+WORKDIR /build
+
+# copy csproj and restore as distinct layers
+COPY *.sln ./
+
+# Copy the main source project files
+COPY src/*/*.csproj ./
+RUN for file in $(ls *.csproj); do mkdir -p src/${file%.*}/ && mv $file src/${file%.*}/; done
+
+# Copy the test project files
+COPY test/*/*.csproj ./
+RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
+
+# Restore to cache the layers
+RUN dotnet restore Payments.sln
+
+# Copy all the source code and build
+COPY ./src ./src
+COPY ./test ./test
+
+RUN dotnet build Payments.sln -c Release --no-restore
+
+ENTRYPOINT ["dotnet", "test", "Payments.sln", "-c=Release", "--no-restore", "--no-build", "--logger:trx", "--results-directory=/testresults"]

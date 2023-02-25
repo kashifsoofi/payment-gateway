@@ -1,0 +1,27 @@
+version: '3.7'
+
+networks:
+  default:
+    name: localstack-net
+
+services:
+  localstack:
+    image: localstack/localstack:1.4.0
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      - SERVICES=s3,sqs,sns
+      - DEBUG=1
+      - DATA_DIR=${DATA_DIR- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DEFAULT_REGION=eu-west-1
+      - HOSTNAME=localstack
+      - HOSTNAME_EXTERNAL=localstack
+    volumes:
+      - localstackdata:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  localstackdata:

@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+  testrunner:
+    image: testrunner
+    build:
+      context: .
+      dockerfile: Dockerfile.Testrunner
+    volumes:
+      - ${TEST_RESULTS_PATH}:/testresults

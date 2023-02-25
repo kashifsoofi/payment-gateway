@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Queries\Sql\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="AggregateRepositories\Payment\Sql\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="MySqlConnector" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Payments.Domain\Payments.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

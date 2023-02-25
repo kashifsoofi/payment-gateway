@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  payments.webapi:
+    image: ${DOCKER_REGISTRY-}payments
+    build:
+      context: .
+      dockerfile: src/Payments.WebApi/Dockerfile
+
+  payments.messageprocessor:
+    image: ${DOCKER_REGISTRY-}messageprocessor
+    build:
+      context: .
+      dockerfile: src/Payments.MessageProcessor/Dockerfile

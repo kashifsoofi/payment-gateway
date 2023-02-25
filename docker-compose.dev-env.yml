@@ -1,0 +1,39 @@
+version: '3.7'
+
+networks:
+  default:
+  localstack-net:
+    external: true
+    
+services:
+  payments.db:
+    image: mysql:5.7
+    ports:
+      - "33060:3306"
+    volumes:
+      - paymentsappdbdata:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=defaultdb
+      - MYSQL_ROOT_PASSWORD=Password123
+  
+  payments.db.migrations:
+    depends_on:
+      - payments.db
+    image: payments.db.migrations
+    build:
+      context: ./db/
+      dockerfile: Dockerfile
+    command: -cs "server=payments.db;database=defaultdb;uid=root;password=Password123;SslMode=None;"
+
+  localstack-setup:
+    build:
+      context: ./localstack-setup
+    networks:
+      - localstack-net
+    environment:
+      - "AWS_SECRET_ACCESS_KEY=DUMMY_KEY"
+      - "AWS_ACCESS_KEY_ID=DUMMY_KEY"
+
+volumes:
+  paymentsappdbdata:
+  

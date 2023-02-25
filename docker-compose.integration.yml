@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  payments.db.integration:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: payments.db.integration
+      MYSQL_USER: integration_user
+      MYSQL_PASSWORD: integration_user_password
+
+  payments.db.integration.migrations:
+    depends_on:
+      - payments.db.integration
+    image: payments.db.integration.migrations
+    build:
+      context: ./db/
+      dockerfile: Dockerfile
+    command: -cs "server=payments.db.integration;database=payments.db.integration;uid=root;password=root_password;"
+
+#  payments.webapi:
+#    image: ${DOCKER_REGISTRY-}payments
+#    build:
+#      context: .
+#      dockerfile: src/Payments.WebApi/Dockerfile
