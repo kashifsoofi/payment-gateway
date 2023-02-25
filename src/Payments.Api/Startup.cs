@@ -12,6 +12,9 @@
     using Payments.Infrastructure.Configuration;
     using Payments.Infrastructure.Database;
     using Payments.Infrastructure.Queries;
+    using FluentValidation.AspNetCore;
+    using Payments.Contracts.Requests;
+    using FluentValidation;
 
     public class Startup
     {
@@ -34,6 +37,10 @@
                     opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
             services.AddControllers();
+
+            services.AddFluentValidationAutoValidation();
+            services.AddFluentValidationClientsideAdapters();
+            services.AddValidatorsFromAssemblyContaining<CreatePaymentRequestValidator>();
 
             services.AddSwaggerGen(c =>
             {

@@ -2,18 +2,22 @@ namespace Payments.Api.Tests.Integration.Controllers
 {
     using System;
     using System.Net;
+    using System.Net.Http;
+    using System.Text;
     using System.Threading.Tasks;
+    using AutoFixture.Xunit2;
     using FluentAssertions;
     using Microsoft.AspNetCore.Mvc.Testing;
     using Newtonsoft.Json;
+    using Payments.Contracts.Requests;
     using Payments.Contracts.Responses;
     using Xunit;
 
-    public class PaymentControllerTests : IClassFixture<WebApplicationFactory<Startup>>
+    public class PaymentsControllerTests : IClassFixture<WebApplicationFactory<Startup>>
     {
         private readonly WebApplicationFactory<Startup> factory;
 
-        public PaymentControllerTests(WebApplicationFactory<Startup> factory)
+        public PaymentsControllerTests(WebApplicationFactory<Startup> factory)
         {
             this.factory = factory;
         }
@@ -26,7 +30,7 @@ namespace Payments.Api.Tests.Integration.Controllers
             var client = factory.CreateClient();
 
             // Act
-            var response = await client.GetAsync($"api/aggregatename/{id}");
+            var response = await client.GetAsync($"api/payments/{id}");
 
             // Assert
             response.EnsureSuccessStatusCode();
@@ -35,6 +39,22 @@ namespace Payments.Api.Tests.Integration.Controllers
             var responseContent = await response.Content.ReadAsStringAsync();
             var aggregatename = JsonConvert.DeserializeObject<Payment>(responseContent);
             aggregatename.Id.Should().Be(id);
+        }
+
+        [Theory]
+        [AutoData]
+        public async Task Post_GivenInvalidInput_ShouldReturnBadRequest(CreatePaymentRequest request)
+        {
+            // Arrange
+            request.Id = Guid.Empty;
+            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+            var client = factory.CreateClient();
+
+            // Act
+            var response = await client.PostAsync("api/payments", content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
     }
 }

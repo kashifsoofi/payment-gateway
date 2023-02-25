@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
     <PackageReference Include="NServiceBus.AmazonSQS" Version="5.3.0" />
     <PackageReference Include="NServiceBus.Callbacks" Version="3.0.0" />
     <PackageReference Include="Autofac" Version="6.3.0" />

@@ -11,13 +11,13 @@
 
     [Route("api/[controller]")]
     [ApiController]
-    public class PaymentController : ControllerBase
+    public class PaymentsController : ControllerBase
     {
         private readonly IMessageSession messageSession;
         private readonly IGetAllPaymentsQuery getAllPaymentsQuery;
         private readonly IGetPaymentByIdQuery getPaymentByIdQuery;
 
-        public PaymentController(IMessageSession messageSession, IGetAllPaymentsQuery getAllPaymentsQuery, IGetPaymentByIdQuery getPaymentByIdQuery)
+        public PaymentsController(IMessageSession messageSession, IGetAllPaymentsQuery getAllPaymentsQuery, IGetPaymentByIdQuery getPaymentByIdQuery)
         {
             this.messageSession = messageSession;
             this.getAllPaymentsQuery = getAllPaymentsQuery;

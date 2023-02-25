@@ -19,7 +19,7 @@ namespace Payments.Api.Tests.Unit.Controllers
         private readonly Mock<IGetAllPaymentsQuery> getAllPaymentsQueryMock;
         private readonly Mock<IGetPaymentByIdQuery> getPaymentByIdQueryMock;
 
-        private readonly PaymentController sut;
+        private readonly PaymentsController sut;
 
         public PaymentControllerTests()
         {
@@ -27,7 +27,7 @@ namespace Payments.Api.Tests.Unit.Controllers
             getAllPaymentsQueryMock = new Mock<IGetAllPaymentsQuery>();
             getPaymentByIdQueryMock = new Mock<IGetPaymentByIdQuery>();
 
-            sut = new PaymentController(messageSession, getAllPaymentsQueryMock.Object, getPaymentByIdQueryMock.Object);
+            sut = new PaymentsController(messageSession, getAllPaymentsQueryMock.Object, getPaymentByIdQueryMock.Object);
         }
 
         [Theory]
