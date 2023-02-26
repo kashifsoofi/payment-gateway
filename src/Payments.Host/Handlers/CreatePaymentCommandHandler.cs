@@ -34,7 +34,7 @@
             try
             {
                 var aggregate = await this.aggregateReadRepository.GetByIdAsync(command.Id);
-                aggregate.Create(command);
+                await aggregate.Create(command);
 
                 await PersistAndPublishAsync(aggregate, context);
                 await context.Reply(new RequestResponse(true)).ConfigureAwait(false);

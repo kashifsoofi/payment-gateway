@@ -13,7 +13,7 @@
 
         bool IsNew { get; }
 
-        void Create(CreatePayment command);
+        Task Create(CreatePayment command);
 
         List<IAggregateEvent> UncommittedEvents { get; set; }
     }

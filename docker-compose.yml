@@ -1,14 +1,89 @@
 version: '3.7'
 
 services:
-  payments.webapi:
-    image: ${DOCKER_REGISTRY-}payments
-    build:
-      context: .
-      dockerfile: src/Payments.WebApi/Dockerfile
+  localstack:
+    image: localstack/localstack:1.4.0
+    environment:
+      - SERVICES=s3,sqs,sns
+      - DEBUG=1
+      - DATA_DIR=${DATA_DIR- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DEFAULT_REGION=eu-west-1
+      - HOSTNAME=localstack
+      - HOSTNAME_EXTERNAL=localstack
+    volumes:
+      - localstackdata:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
 
-  payments.messageprocessor:
-    image: ${DOCKER_REGISTRY-}messageprocessor
+  localstack-setup:
+    build:
+      context: ./localstack-setup
+    environment:
+      - "AWS_SECRET_ACCESS_KEY=DUMMY_KEY"
+      - "AWS_ACCESS_KEY_ID=DUMMY_KEY"
+
+  payments.db:
+    image: mysql:5.7
+    ports:
+      - "33061:3306"
+    volumes:
+      - paymentsappdbdata:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=defaultdb
+      - MYSQL_ROOT_PASSWORD=Password123
+  
+  payments.db.migrations:
+    depends_on:
+      - payments.db
+    image: payments.db.migrations
+    build:
+      context: ./db/
+      dockerfile: Dockerfile
+    command: -cs "server=payments.db;database=defaultdb;uid=root;password=Password123;SslMode=None;"
+
+  acquiringbank.api:
+    image: acquiringbank.api
     build:
       context: .
-      dockerfile: src/Payments.MessageProcessor/Dockerfile
+      dockerfile: src/AcquiringBank.Api/Dockerfile
+    ports:
+      - "5001:80"
+      - "4431:443"
+  payments.api:
+    depends_on:
+      - payments.db
+      - localstack
+      - acquiringbank.api
+    image: payments.api
+    build:
+      context: .
+      dockerfile: src/Payments.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_HTTPS_PORT=44374
+    ports:
+      - "5000:80"
+      - "4430:443"
+    volumes:
+      - ~/.aspnet/https:/root/.aspnet/https:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+
+  payments.host:
+    depends_on:
+      - payments.db
+      - localstack
+      - acquiringbank.api
+    image: payments.host
+    build:
+      context: .
+      dockerfile: src/Payments.Host/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_HTTPS_PORT=44374
+
+volumes:
+  localstackdata:
+  paymentsappdbdata:

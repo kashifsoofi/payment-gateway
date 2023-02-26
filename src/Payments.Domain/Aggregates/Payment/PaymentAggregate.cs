@@ -2,23 +2,33 @@
 {
     using System;
     using System.Collections.Generic;
-    using Payments.Contracts.Enums;
     using Payments.Contracts.Messages.Commands;
     using Payments.Contracts.Messages.Events;
+    using Payments.Domain.AcquiringBank;
 
     public class PaymentAggregate : IPaymentAggregate
     {
+        private readonly IAcquiringBankService acquiringBankService;
+
         private readonly PaymentAggregateState state;
         private readonly bool isNew;
 
-        public PaymentAggregate(Guid id)
+        public PaymentAggregate(
+            IAcquiringBankService acquiringBankService,
+            Guid id)
         {
+            this.acquiringBankService = acquiringBankService;
+
             this.state = new PaymentAggregateState { Id = id };
             this.isNew = true;
         }
 
-        public PaymentAggregate(PaymentAggregateState state)
+        public PaymentAggregate(
+            IAcquiringBankService acquiringBankService,
+            PaymentAggregateState state)
         {
+            this.acquiringBankService = acquiringBankService;
+
             this.state = state ?? throw new ArgumentNullException(nameof(state));
             this.isNew = false;
         }
@@ -31,13 +41,26 @@
 
         public List<IAggregateEvent> UncommittedEvents { get; set; } = new List<IAggregateEvent> { };
 
-        public void Create(CreatePayment command)
+        public async Task Create(CreatePayment command)
         {
             if (command == null) throw new ArgumentNullException(nameof(command));
 
             if (!isNew) throw new Exception("Payment already exists.");
 
-            var status = PaymentStatus.Approved;
+            var status = await acquiringBankService.CreatePaymentAsync(
+                new CreatePaymentRequest
+                {
+                    Id = command.Id,
+                    MerchantId = command.MerchantId,
+                    CardHolderName = command.CardHolderName,
+                    CardNumber = command.CardNumber,
+                    ExpiryMonth = command.ExpiryMonth,
+                    ExpiryYear = command.ExpiryYear,
+                    Cvv = command.Cvv,
+                    Amount = command.Amount,
+                    CurrencyCode = command.CurrencyCode,
+                    Reference = command.Reference,
+                });
 
             var evt = new PaymentCreated(
                 command.Id,

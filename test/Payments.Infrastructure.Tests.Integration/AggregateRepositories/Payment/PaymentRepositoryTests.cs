@@ -4,6 +4,8 @@
     using System.Threading.Tasks;
     using AutoFixture.Xunit2;
     using FluentAssertions;
+    using Moq;
+    using Payments.Domain.AcquiringBank;
     using Payments.Domain.Aggregates.Payment;
     using Payments.Infrastructure.AggregateRepositories.Payment;
     using Payments.Infrastructure.Tests.Integration.Helpers;
@@ -12,17 +14,21 @@
     [Collection("DatabaseCollection")]
     public class PaymentRepositoryTests : IAsyncLifetime
     {
+        private readonly Mock<IAcquiringBankService> acquiringBankServiceMock;
+
         private readonly PaymentsDatabaseHelper paymentsDatabaseHelper;
 
         private readonly PaymentRepository sut;
 
         public PaymentRepositoryTests(DatabaseFixture databaseFixture)
         {
+            acquiringBankServiceMock = new Mock<IAcquiringBankService>();
+
             var connectionStringProvider = databaseFixture.ConnectionStringProvider;
 
             paymentsDatabaseHelper = new PaymentsDatabaseHelper(connectionStringProvider.PaymentsConnectionString);
 
-            var factory = new PaymentAggregateFactory();
+            var factory = new PaymentAggregateFactory(acquiringBankServiceMock.Object);
             sut = new PaymentRepository(connectionStringProvider, factory);
         }
 
@@ -80,7 +86,7 @@
             state.CurrencyCode = "GBP";
 
             // Act
-            await this.sut.CreateAsync(new PaymentAggregate(state));
+            await this.sut.CreateAsync(new PaymentAggregate(acquiringBankServiceMock.Object, state));
             this.paymentsDatabaseHelper.TrackId(state.Id);
 
             var result = (await this.sut.GetByIdAsync(state.Id)).State;
