@@ -18,6 +18,7 @@ namespace Payments.Api.Tests.Unit.Controllers
     {
         private readonly Mock<IGetPaymentsByMerchantIdQuery> getAllPaymentsQueryMock;
         private readonly Mock<IGetPaymentByIdQuery> getPaymentByIdQueryMock;
+        private readonly Mock<IGetPaymentByIdAndMerchantIdQuery> getPaymentByIdAndMerchantIdQueryMock;
 
         private readonly PaymentsController sut;
 
@@ -26,8 +27,9 @@ namespace Payments.Api.Tests.Unit.Controllers
             var messageSession = new TestableMessageSession();
             getAllPaymentsQueryMock = new Mock<IGetPaymentsByMerchantIdQuery>();
             getPaymentByIdQueryMock = new Mock<IGetPaymentByIdQuery>();
+            getPaymentByIdAndMerchantIdQueryMock = new Mock<IGetPaymentByIdAndMerchantIdQuery>();
 
-            sut = new PaymentsController(messageSession, getAllPaymentsQueryMock.Object, getPaymentByIdQueryMock.Object);
+            sut = new PaymentsController(messageSession, getAllPaymentsQueryMock.Object, getPaymentByIdQueryMock.Object, getPaymentByIdAndMerchantIdQueryMock.Object);
         }
 
         [Theory]
@@ -74,8 +76,8 @@ namespace Payments.Api.Tests.Unit.Controllers
         public void Get_GivenRecordWithIdExists_ShouldReturnOkAndPayment(Payment payment)
         {
             // Arrange
-            getPaymentByIdQueryMock
-                .Setup(x => x.ExecuteAsync(payment.Id, payment.MerchantId))
+            getPaymentByIdAndMerchantIdQueryMock
+                .Setup(x => x.ExecuteAsync(payment.Id, Guid.Empty))
                 .ReturnsAsync(payment);
 
             // Act

@@ -1,4 +1,4 @@
-﻿namespace Payments.Infrastructure.Tests.Integration.Helpers
+﻿namespace Payments.Api.Tests.Integration
 {
     using System;
     using System.Collections.Generic;
@@ -38,7 +38,7 @@
                 commandType: CommandType.Text);
         }
 
-        public virtual async Task AddRecordAsync(TRecord record)
+        public async virtual Task AddRecordAsync(TRecord record)
         {
             this.AddedRecords.Add(idSelector(record), record);
             await using var connection = new MySqlConnection(connectionString);

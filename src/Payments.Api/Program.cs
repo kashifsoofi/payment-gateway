@@ -93,3 +93,6 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
             webBuilder.UseStartup<Startup>();
         })
         .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+public partial class Program
+{ }

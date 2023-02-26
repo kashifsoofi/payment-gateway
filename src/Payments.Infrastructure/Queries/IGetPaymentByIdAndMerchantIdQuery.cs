@@ -4,8 +4,8 @@
     using System.Threading.Tasks;
     using Payments.Contracts.Responses;
 
-    public interface IGetPaymentByIdQuery
+    public interface IGetPaymentByIdAndMerchantIdQuery
     {
-        Task<Payment> ExecuteAsync(Guid id);
+        Task<Payment> ExecuteAsync(Guid id, Guid merchantId);
     }
 }

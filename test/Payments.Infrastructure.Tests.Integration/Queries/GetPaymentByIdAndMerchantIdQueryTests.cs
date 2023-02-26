@@ -10,19 +10,19 @@
     using Xunit;
 
     [Collection("DatabaseCollection")]
-    public class GetPaymentByIdQueryTests : IAsyncLifetime
+    public class GetPaymentByIdAndMerchantIdQueryTests : IAsyncLifetime
     {
         private readonly PaymentsDatabaseHelper paymentsDatabaseHelper;
 
-        private readonly GetPaymentByIdQuery sut;
+        private readonly GetPaymentByIdAndMerchantIdQuery sut;
 
-        public GetPaymentByIdQueryTests(DatabaseFixture databaseFixture)
+        public GetPaymentByIdAndMerchantIdQueryTests(DatabaseFixture databaseFixture)
         {
             var connectionStringProvider = databaseFixture.ConnectionStringProvider;
 
             paymentsDatabaseHelper = new PaymentsDatabaseHelper(connectionStringProvider.PaymentsConnectionString);
 
-            this.sut = new GetPaymentByIdQuery(connectionStringProvider);
+            this.sut = new GetPaymentByIdAndMerchantIdQuery(connectionStringProvider);
         }
 
         public Task InitializeAsync() => Task.CompletedTask;
@@ -34,10 +34,10 @@
 
         [Theory]
         [AutoData]
-        public async Task ExecuteAsync_GivenNoRecordExists_ShouldReturnNull(Guid id)
+        public async Task ExecuteAsync_GivenNoRecordExists_ShouldReturnNull(Guid id, Guid merchantId)
         {
             // Arrange
-            var result = await this.sut.ExecuteAsync(id);
+            var result = await this.sut.ExecuteAsync(id, merchantId);
 
             // Assert
             result.Should().BeNull();
@@ -53,7 +53,7 @@
             await this.paymentsDatabaseHelper.AddRecordAsync(state);
 
             // Act
-            var result = await this.sut.ExecuteAsync(state.Id);
+            var result = await this.sut.ExecuteAsync(state.Id, state.MerchantId);
 
             // Assert
             result.Should().BeEquivalentTo(

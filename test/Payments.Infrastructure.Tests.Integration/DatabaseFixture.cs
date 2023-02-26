@@ -22,7 +22,7 @@
 
         public DatabaseFixture()
         {
-            this.useServiceDatabase = Debugger.IsAttached;
+            this.useServiceDatabase = true; // Debugger.IsAttached;
             if (!this.useServiceDatabase)
             {
                 Environment.SetEnvironmentVariable("REAPER_DISABLED", true.ToString());
@@ -82,7 +82,7 @@
                 databaseOptions = new DatabaseOptions
                 {
                     Server = "localhost",
-                    Port = 10286,
+                    Port = 33060,
                     Database = ServiceDatabaseName,
                     Username = "root",
                     Password = "Password123",

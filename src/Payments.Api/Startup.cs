@@ -61,6 +61,7 @@
 
             builder.RegisterType<GetPaymentsByMerchantIdQuery>().As<IGetPaymentsByMerchantIdQuery>().SingleInstance();
             builder.RegisterType<GetPaymentByIdQuery>().As<IGetPaymentByIdQuery>().SingleInstance();
+            builder.RegisterType<GetPaymentByIdAndMerchantIdQuery>().As<IGetPaymentByIdAndMerchantIdQuery>().SingleInstance();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

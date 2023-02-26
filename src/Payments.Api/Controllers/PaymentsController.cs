@@ -16,15 +16,21 @@
         private readonly IMessageSession messageSession;
         private readonly IGetPaymentsByMerchantIdQuery getAllPaymentsQuery;
         private readonly IGetPaymentByIdQuery getPaymentByIdQuery;
+        private readonly IGetPaymentByIdAndMerchantIdQuery getPaymentByIdAndMerchantIdQuery;
 
-        public PaymentsController(IMessageSession messageSession, IGetPaymentsByMerchantIdQuery getAllPaymentsQuery, IGetPaymentByIdQuery getPaymentByIdQuery)
+        public PaymentsController(
+            IMessageSession messageSession,
+            IGetPaymentsByMerchantIdQuery getAllPaymentsQuery,
+            IGetPaymentByIdQuery getPaymentByIdQuery,
+            IGetPaymentByIdAndMerchantIdQuery getPaymentByIdAndMerchantIdQuery)
         {
             this.messageSession = messageSession;
             this.getAllPaymentsQuery = getAllPaymentsQuery;
             this.getPaymentByIdQuery = getPaymentByIdQuery;
+            this.getPaymentByIdAndMerchantIdQuery = getPaymentByIdAndMerchantIdQuery;
         }
 
-        // GET api/payment
+        // GET api/payments
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -32,7 +38,7 @@
             return Ok(result);
         }
 
-        // GET api/aggregatename/5
+        // GET api/payments/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -41,14 +47,20 @@
                 throw new ArgumentException("Guid value cannot be default", nameof(id));
             }
 
-            var result = await getPaymentByIdQuery.ExecuteAsync(id, Guid.Empty);
+            var result = await getPaymentByIdAndMerchantIdQuery.ExecuteAsync(id, Guid.Empty);
             return result == null ? (ActionResult)NotFound() : Ok(result);
         }
 
-        // POST api/payment
+        // POST api/payments
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreatePaymentRequest request)
         {
+            var result = await getPaymentByIdQuery.ExecuteAsync(request.Id);
+            if (result != null)
+            {
+                return Conflict();
+            }
+
             var createPaymentCommand =
                 new CreatePayment(
                     request.Id,
@@ -68,7 +80,7 @@
                 throw response.Exception!;
             }
 
-            return Ok();
+            return Accepted();
         }
     }
 }

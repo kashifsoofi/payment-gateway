@@ -13,7 +13,7 @@
     [Collection("DatabaseCollection")]
     public class GetAllPaymentsQueryTests : IAsyncLifetime
     {
-        private readonly DatabaseHelper<Guid, PaymentAggregateState> aggregateNameDatabaseHelper;
+        private readonly PaymentsDatabaseHelper paymentsDatabaseHelper;
 
         private readonly GetPaymentsByMerchantIdQuery sut;
 
@@ -21,7 +21,7 @@
         {
             var connectionStringProvider = databaseFixture.ConnectionStringProvider;
 
-            aggregateNameDatabaseHelper = new DatabaseHelper<Guid, PaymentAggregateState>("Payment", connectionStringProvider.PaymentsConnectionString, x => x.Id);
+            paymentsDatabaseHelper = new PaymentsDatabaseHelper(connectionStringProvider.PaymentsConnectionString);
 
             this.sut = new GetPaymentsByMerchantIdQuery(connectionStringProvider);
         }
@@ -30,10 +30,10 @@
 
         public async Task DisposeAsync()
         {
-            await aggregateNameDatabaseHelper.CleanTableAsync();
+            await paymentsDatabaseHelper.CleanTableAsync();
         }
 
-        [Fact(Skip = "TestContainers need updating")]
+        [Fact]
         public async Task ExecuteAsync_GivenNoRecords_ShouldReturnEmptyCollection()
         {
             // Arrange
@@ -43,18 +43,24 @@
             result.Should().BeEmpty();
         }
 
-        [Theory(Skip = "TestContainers need updating")]
+        [Theory]
         [AutoData]
-        public async Task ExecuteAsync_GivenRecordsExist_ShouldReturnRecords(List<PaymentAggregateState> states)
+        public async Task ExecuteAsync_GivenRecordsExist_ShouldReturnRecords(List<PaymentAggregateState> states, Guid merchantId)
         {
             // Arrange
-            await this.aggregateNameDatabaseHelper.AddRecordsAsync(states);
+            foreach (var state in states)
+            {
+                state.MerchantId = merchantId;
+                state.CardNumber = state.CardNumber.Substring(0, 4);
+                state.CurrencyCode = "GBP";
+            }
+            await this.paymentsDatabaseHelper.AddRecordsAsync(states);
 
             // Act
-            var result = await this.sut.ExecuteAsync(Guid.Empty);
+            var result = await this.sut.ExecuteAsync(merchantId);
 
             // Assert
-            result.Should().BeEquivalentTo(states);
+            result.Should().BeEquivalentTo(states, opts => opts.Excluding(x => x.CreatedOn).Excluding(x => x.UpdatedOn));
         }
     }
 }

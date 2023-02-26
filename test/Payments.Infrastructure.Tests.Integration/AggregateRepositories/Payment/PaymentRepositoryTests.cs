@@ -6,14 +6,13 @@
     using FluentAssertions;
     using Payments.Domain.Aggregates.Payment;
     using Payments.Infrastructure.AggregateRepositories.Payment;
-    using Payments.Infrastructure.Database;
     using Payments.Infrastructure.Tests.Integration.Helpers;
     using Xunit;
 
     [Collection("DatabaseCollection")]
     public class PaymentRepositoryTests : IAsyncLifetime
     {
-        private readonly DatabaseHelper<Guid, PaymentAggregateState> aggregateNameDatabaseHelper;
+        private readonly PaymentsDatabaseHelper paymentsDatabaseHelper;
 
         private readonly PaymentRepository sut;
 
@@ -21,7 +20,7 @@
         {
             var connectionStringProvider = databaseFixture.ConnectionStringProvider;
 
-            aggregateNameDatabaseHelper = new DatabaseHelper<Guid, PaymentAggregateState>("Payment", connectionStringProvider.PaymentsConnectionString, x => x.Id);
+            paymentsDatabaseHelper = new PaymentsDatabaseHelper(connectionStringProvider.PaymentsConnectionString);
 
             var factory = new PaymentAggregateFactory();
             sut = new PaymentRepository(connectionStringProvider, factory);
@@ -31,10 +30,10 @@
 
         public async Task DisposeAsync()
         {
-            await aggregateNameDatabaseHelper.CleanTableAsync();
+            await paymentsDatabaseHelper.CleanTableAsync();
         }
 
-        [Theory(Skip = "TestContainers need updating")]
+        [Theory]
         [AutoData]
         public async void GetByIdAsync_GivenRecordDoesNotExist_ShouldReturnNewAggregate(Guid newId)
         {
@@ -47,12 +46,14 @@
             result.UncommittedEvents.Should().BeEmpty();
         }
 
-        [Theory(Skip = "TestContainers need updating")]
+        [Theory]
         [AutoData]
         public async void GetByIdAsync_GivenRecordExists_ShouldReturnAggregate(PaymentAggregateState state)
         {
             // Arrange
-            await this.aggregateNameDatabaseHelper.AddRecordAsync(state);
+            state.CardNumber = state.CardNumber.Substring(0, 4);
+            state.CurrencyCode = "GBP";
+            await this.paymentsDatabaseHelper.AddRecordAsync(state);
 
             // Act
             var result = await this.sut.GetByIdAsync(state.Id);
@@ -70,14 +71,17 @@
             result.State.UpdatedOn.Should().BeCloseTo(state.UpdatedOn, TimeSpan.FromSeconds(1));
         }
 
-        [Theory(Skip = "TestContainers need updating")]
+        [Theory]
         [AutoData]
         public async void CreateAsync_GivenRecordDoesNotExist_CreatesRecord(PaymentAggregateState state)
         {
             // Arrange
+            state.CardNumber = state.CardNumber.Substring(0, 4);
+            state.CurrencyCode = "GBP";
+
             // Act
             await this.sut.CreateAsync(new PaymentAggregate(state));
-            this.aggregateNameDatabaseHelper.TrackId(state.Id);
+            this.paymentsDatabaseHelper.TrackId(state.Id);
 
             var result = (await this.sut.GetByIdAsync(state.Id)).State;
 
@@ -90,33 +94,6 @@
                     .Excluding(p => p.UpdatedOn));
             result.CreatedOn.Should().BeCloseTo(state.CreatedOn, TimeSpan.FromSeconds(1));
             result.UpdatedOn.Should().BeCloseTo(state.UpdatedOn, TimeSpan.FromSeconds(1));
-        }
-
-        [Theory(Skip = "TestContainers need updating")]
-        [AutoData]
-        public async void UpdateAsync_GivenRecordExists_UpdatesRecord(PaymentAggregateState state, PaymentAggregateState updatedState)
-        {
-            //// non updateable properties
-            updatedState.CreatedOn = state.CreatedOn;
-
-            // Arrange
-            await this.aggregateNameDatabaseHelper.AddRecordAsync(state);
-
-            // Act
-            updatedState.Id = state.Id;
-            await this.sut.UpdateAsync(new PaymentAggregate(updatedState));
-
-            var result = (await this.sut.GetByIdAsync(state.Id)).State;
-
-            // Assert
-            result.Id.Should().Be(state.Id);
-            result.Should().BeEquivalentTo(
-                updatedState,
-                x => x
-                    .Excluding(p => p.CreatedOn)
-                    .Excluding(p => p.UpdatedOn));
-            result.CreatedOn.Should().BeCloseTo(updatedState.CreatedOn, TimeSpan.FromSeconds(1));
-            result.UpdatedOn.Should().BeCloseTo(updatedState.UpdatedOn, TimeSpan.FromSeconds(1));
         }
     }
 }

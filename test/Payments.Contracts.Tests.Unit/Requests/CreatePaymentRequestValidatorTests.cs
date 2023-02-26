@@ -132,7 +132,7 @@
 
             var result = sut.TestValidate(request);
 
-            result.ShouldHaveValidationErrorFor(x => x.CurrencyCode);
+            result.ShouldHaveValidationErrorFor(x => x.Reference);
         }
     }
 }

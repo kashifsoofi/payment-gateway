@@ -13,3 +13,4 @@
 	UpdatedOn
 FROM Payment
 WHERE Id = @Id
+AND MerchantId = @MerchantId
