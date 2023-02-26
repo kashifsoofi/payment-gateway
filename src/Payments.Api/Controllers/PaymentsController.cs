@@ -8,6 +8,7 @@
     using Payments.Contracts.Requests;
     using Payments.Infrastructure.Messages.Responses;
     using Payments.Infrastructure.Queries;
+    using System.ComponentModel.DataAnnotations;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -32,29 +33,44 @@
 
         // GET api/payments
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromHeader(Name = "Merchant-Id")][Required] Guid merchantId)
         {
-            var result = await this.getAllPaymentsQuery.ExecuteAsync(Guid.Empty);
+            if (merchantId == default)
+            {
+                return BadRequest("merchantId cannot be default value.");
+            }
+
+            var result = await this.getAllPaymentsQuery.ExecuteAsync(merchantId);
             return Ok(result);
         }
 
         // GET api/payments/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id)
+        public async Task<IActionResult> Get([FromHeader(Name = "Merchant-Id")][Required] Guid merchantId, Guid id)
         {
-            if (id == default)
+            if (merchantId == default)
             {
-                throw new ArgumentException("Guid value cannot be default", nameof(id));
+                return BadRequest("merchantId cannot be default value.");
             }
 
-            var result = await getPaymentByIdAndMerchantIdQuery.ExecuteAsync(id, Guid.Empty);
+            if (id == default)
+            {
+                return BadRequest("id cannot be defaul value.");
+            }
+
+            var result = await getPaymentByIdAndMerchantIdQuery.ExecuteAsync(id, merchantId);
             return result == null ? (ActionResult)NotFound() : Ok(result);
         }
 
         // POST api/payments
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreatePaymentRequest request)
+        public async Task<IActionResult> Post([FromHeader(Name = "Merchant-Id")][Required] Guid merchantId, [FromBody] CreatePaymentRequest request)
         {
+            if (merchantId == default)
+            {
+                return BadRequest("merchantId cannot be default value.");
+            }
+
             var result = await getPaymentByIdQuery.ExecuteAsync(request.Id);
             if (result != null)
             {
@@ -64,7 +80,7 @@
             var createPaymentCommand =
                 new CreatePayment(
                     request.Id,
-                    Guid.Empty,
+                    merchantId,
                     request.CardHolderName,
                     request.CardNumber,
                     request.ExpiryMonth,

@@ -34,15 +34,15 @@ namespace Payments.Api.Tests.Unit.Controllers
 
         [Theory]
         [AutoData]
-        public void Get_ShouldReturnOkAndPayments(List<Payment> aggregateNames)
+        public void Get_ShouldReturnOkAndPayments(Guid merchantId, List<Payment> payments)
         {
             // Arrange
             getAllPaymentsQueryMock
-                .Setup(x => x.ExecuteAsync(Guid.Empty))
-                .ReturnsAsync(aggregateNames);
+                .Setup(x => x.ExecuteAsync(merchantId))
+                .ReturnsAsync(payments);
 
             // Act
-            var response = sut.Get();
+            var response = sut.Get(merchantId);
 
             // Assert
             response.Should().NotBeNull();
@@ -50,25 +50,25 @@ namespace Payments.Api.Tests.Unit.Controllers
             okObjectResult.Should().NotBeNull();
             okObjectResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
             okObjectResult.Value.Should().NotBeNull();
-            okObjectResult.Value.Should().BeEquivalentTo(aggregateNames);
+            okObjectResult.Value.Should().BeEquivalentTo(payments);
 
-            getAllPaymentsQueryMock.Verify(x => x.ExecuteAsync(Guid.Empty), Times.Once);
+            getAllPaymentsQueryMock.Verify(x => x.ExecuteAsync(merchantId), Times.Once);
         }
 
         [Fact]
-        public async Task Get_GivenADefaultGuid_ShouldThrowException()
+        public async Task Get_GivenADefaultGuid_ShouldReturnBadRequest()
         {
             // Arrange
-            var testValue = Guid.Empty;
-            var defaultMessage = "Guid value cannot be default";
-            var parameterName = "id";
+            Guid merchantId = Guid.NewGuid();
+            Guid id = Guid.Empty;
 
-            Func<Task> func = async () => await sut.Get(testValue);
+            // Act
+            var response = await sut.Get(merchantId, id);
 
             // Act & Assert
-            var exception = await func.Should().ThrowAsync<ArgumentException>();
-            exception.And.Message.Should().Contain(defaultMessage);
-            exception.Which.ParamName.Should().Be(parameterName);
+            response.Should().NotBeNull();
+            var badRequestObjectResult = response as BadRequestObjectResult;
+            badRequestObjectResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
 
         [Theory]
@@ -77,11 +77,11 @@ namespace Payments.Api.Tests.Unit.Controllers
         {
             // Arrange
             getPaymentByIdAndMerchantIdQueryMock
-                .Setup(x => x.ExecuteAsync(payment.Id, Guid.Empty))
+                .Setup(x => x.ExecuteAsync(payment.Id, payment.MerchantId))
                 .ReturnsAsync(payment);
 
             // Act
-            var response = sut.Get(payment.Id);
+            var response = sut.Get(payment.MerchantId, payment.Id);
 
             // Assert
             response.Should().NotBeNull();

@@ -42,14 +42,16 @@ namespace Payments.Api.Tests.Integration.Controllers
         public async Task Get_should_return_ok_with_Payment(PaymentAggregateState state)
         {
             // Arrange
-            state.MerchantId = Guid.Empty;
             state.CardNumber = state.CardNumber.Substring(0, 4);
             state.CurrencyCode = "GBP";
             await this.paymentsDatabaseHelper.AddRecordAsync(state);
             var id = state.Id;
 
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/payments/{id}");
+            request.Headers.Add("Merchant-Id", state.MerchantId.ToString());
+
             // Act
-            var response = await client.GetAsync($"api/payments/{id}");
+            var response = await client.SendAsync(request);
 
             // Assert
             response.EnsureSuccessStatusCode();
