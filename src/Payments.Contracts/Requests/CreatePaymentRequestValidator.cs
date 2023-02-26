@@ -28,6 +28,7 @@
                 cur = cur.ToUpper();
                 return cur == "GBP";
             }).WithMessage("Only GBP is supported.");
+            RuleFor(model => model.Reference).NotEmpty().MaximumLength(50);
         }
     }
 }

@@ -4,8 +4,8 @@
     using System.Threading.Tasks;
     using Payments.Contracts.Responses;
 
-    public interface IGetAllPaymentsQuery
+    public interface IGetPaymentsByMerchantIdQuery
     {
-        Task<IEnumerable<Payment>> ExecuteAsync();
+        Task<IEnumerable<Payment>> ExecuteAsync(Guid merchantId);
     }
 }

@@ -1,3 +1,0 @@
-﻿SELECT
-    Id
-FROM Payment

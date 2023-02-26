@@ -15,10 +15,6 @@
 
         void Create(CreatePayment command);
 
-        void Update(UpdatePayment command);
-
-        void Delete();
-
         List<IAggregateEvent> UncommittedEvents { get; set; }
     }
 }

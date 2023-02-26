@@ -16,7 +16,7 @@ namespace Payments.Api.Tests.Unit.Controllers
 
     public class PaymentControllerTests
     {
-        private readonly Mock<IGetAllPaymentsQuery> getAllPaymentsQueryMock;
+        private readonly Mock<IGetPaymentsByMerchantIdQuery> getAllPaymentsQueryMock;
         private readonly Mock<IGetPaymentByIdQuery> getPaymentByIdQueryMock;
 
         private readonly PaymentsController sut;
@@ -24,7 +24,7 @@ namespace Payments.Api.Tests.Unit.Controllers
         public PaymentControllerTests()
         {
             var messageSession = new TestableMessageSession();
-            getAllPaymentsQueryMock = new Mock<IGetAllPaymentsQuery>();
+            getAllPaymentsQueryMock = new Mock<IGetPaymentsByMerchantIdQuery>();
             getPaymentByIdQueryMock = new Mock<IGetPaymentByIdQuery>();
 
             sut = new PaymentsController(messageSession, getAllPaymentsQueryMock.Object, getPaymentByIdQueryMock.Object);
@@ -36,7 +36,7 @@ namespace Payments.Api.Tests.Unit.Controllers
         {
             // Arrange
             getAllPaymentsQueryMock
-                .Setup(x => x.ExecuteAsync())
+                .Setup(x => x.ExecuteAsync(Guid.Empty))
                 .ReturnsAsync(aggregateNames);
 
             // Act
@@ -50,7 +50,7 @@ namespace Payments.Api.Tests.Unit.Controllers
             okObjectResult.Value.Should().NotBeNull();
             okObjectResult.Value.Should().BeEquivalentTo(aggregateNames);
 
-            getAllPaymentsQueryMock.Verify(x => x.ExecuteAsync(), Times.Once);
+            getAllPaymentsQueryMock.Verify(x => x.ExecuteAsync(Guid.Empty), Times.Once);
         }
 
         [Fact]
@@ -71,15 +71,15 @@ namespace Payments.Api.Tests.Unit.Controllers
 
         [Theory]
         [AutoData]
-        public void Get_GivenRecordWithIdExists_ShouldReturnOkAndPayment(Payment aggregateName)
+        public void Get_GivenRecordWithIdExists_ShouldReturnOkAndPayment(Payment payment)
         {
             // Arrange
             getPaymentByIdQueryMock
-                .Setup(x => x.ExecuteAsync(aggregateName.Id))
-                .ReturnsAsync(aggregateName);
+                .Setup(x => x.ExecuteAsync(payment.Id, payment.MerchantId))
+                .ReturnsAsync(payment);
 
             // Act
-            var response = sut.Get(aggregateName.Id);
+            var response = sut.Get(payment.Id);
 
             // Assert
             response.Should().NotBeNull();
@@ -87,7 +87,7 @@ namespace Payments.Api.Tests.Unit.Controllers
             okObjectResult.Should().NotBeNull();
             okObjectResult.StatusCode.Should().Be((int)HttpStatusCode.OK);
             okObjectResult.Value.Should().NotBeNull();
-            okObjectResult.Value.Should().BeEquivalentTo(aggregateName);
+            okObjectResult.Value.Should().BeEquivalentTo(payment);
         }
     }
 }

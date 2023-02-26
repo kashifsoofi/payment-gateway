@@ -52,10 +52,6 @@
             {
                 await aggregateWriteRepository.CreateAsync(aggregate);
             }
-            else
-            {
-                await aggregateWriteRepository.UpdateAsync(aggregate);
-            }
 
             await Task.WhenAll(aggregate.UncommittedEvents.Select(async (x) => await context.Publish(x)));
         }

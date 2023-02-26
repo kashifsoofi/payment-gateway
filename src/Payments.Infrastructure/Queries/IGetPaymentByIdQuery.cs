@@ -6,6 +6,6 @@
 
     public interface IGetPaymentByIdQuery
     {
-        Task<Payment> ExecuteAsync(Guid id);
+        Task<Payment> ExecuteAsync(Guid id, Guid merchantId);
     }
 }

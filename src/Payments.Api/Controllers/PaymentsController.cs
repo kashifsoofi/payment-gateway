@@ -14,10 +14,10 @@
     public class PaymentsController : ControllerBase
     {
         private readonly IMessageSession messageSession;
-        private readonly IGetAllPaymentsQuery getAllPaymentsQuery;
+        private readonly IGetPaymentsByMerchantIdQuery getAllPaymentsQuery;
         private readonly IGetPaymentByIdQuery getPaymentByIdQuery;
 
-        public PaymentsController(IMessageSession messageSession, IGetAllPaymentsQuery getAllPaymentsQuery, IGetPaymentByIdQuery getPaymentByIdQuery)
+        public PaymentsController(IMessageSession messageSession, IGetPaymentsByMerchantIdQuery getAllPaymentsQuery, IGetPaymentByIdQuery getPaymentByIdQuery)
         {
             this.messageSession = messageSession;
             this.getAllPaymentsQuery = getAllPaymentsQuery;
@@ -28,7 +28,7 @@
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var result = await this.getAllPaymentsQuery.ExecuteAsync();
+            var result = await this.getAllPaymentsQuery.ExecuteAsync(Guid.Empty);
             return Ok(result);
         }
 
@@ -41,7 +41,7 @@
                 throw new ArgumentException("Guid value cannot be default", nameof(id));
             }
 
-            var result = await getPaymentByIdQuery.ExecuteAsync(id);
+            var result = await getPaymentByIdQuery.ExecuteAsync(id, Guid.Empty);
             return result == null ? (ActionResult)NotFound() : Ok(result);
         }
 
@@ -50,41 +50,25 @@
         public async Task<IActionResult> Post([FromBody] CreatePaymentRequest request)
         {
             var createPaymentCommand =
-                new CreatePayment(request.Id);
+                new CreatePayment(
+                    request.Id,
+                    Guid.Empty,
+                    request.CardHolderName,
+                    request.CardNumber,
+                    request.ExpiryMonth,
+                    request.ExpiryYear,
+                    request.Cvv,
+                    request.Amount,
+                    request.CurrencyCode,
+                    request.Reference);
 
-            var response = await this.messageSession.Request<RequestResponse>(createPaymentCommand);
+            var response = await messageSession.Request<RequestResponse>(createPaymentCommand);
             if (!response.Success)
             {
-                throw response.Exception;
+                throw response.Exception!;
             }
 
             return Ok();
-        }
-
-        // PUT api/payment/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] string value)
-        {
-            var updatePaymentCommand =
-                new UpdatePayment(id);
-
-            var response = await this.messageSession.Request<RequestResponse>(updatePaymentCommand);
-            if (!response.Success)
-            {
-                throw response.Exception;
-            }
-
-            return NoContent();
-        }
-
-        // DELETE api/payment/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var deletePaymentCommand = new DeletePayment(id);
-            await this.messageSession.Send(deletePaymentCommand);
-
-            return NoContent();
         }
     }
 }

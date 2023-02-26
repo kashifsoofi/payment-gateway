@@ -12,5 +12,6 @@
         public string Cvv { get; set; }
         public decimal Amount { get; set; }
         public string CurrencyCode { get; set; }
+        public string Reference { get; set; }
     }
 }

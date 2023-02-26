@@ -5,9 +5,5 @@
     public interface IPaymentAggregateWriteRepository
     {
         Task CreateAsync(IPaymentAggregate aggregate);
-
-        Task UpdateAsync(IPaymentAggregate aggregate);
-
-        Task DeleteAsync(IPaymentAggregate aggregate);
     }
 }

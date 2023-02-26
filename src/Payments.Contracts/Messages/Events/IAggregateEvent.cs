@@ -4,6 +4,6 @@
 
     public interface IAggregateEvent
     {
-        DateTime Timestamp { get; set; }
+        DateTime Timestamp { get; }
     }
 }

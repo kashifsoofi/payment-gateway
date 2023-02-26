@@ -41,40 +41,20 @@
                 var parameters = new
                 {
                     aggregate.Id,
+                    aggregate.State.MerchantId,
+                    aggregate.State.CardHolderName,
+                    aggregate.State.CardNumber,
+                    aggregate.State.ExpiryMonth,
+                    aggregate.State.ExpiryYear,
+                    aggregate.State.Amount,
+                    aggregate.State.CurrencyCode,
+                    aggregate.State.Reference,
+                    Status = aggregate.State.Status.ToString(),
                     aggregate.State.CreatedOn,
                     aggregate.State.UpdatedOn,
                 };
 
                 await connection.ExecuteAsync(this.sqlHelper.GetSqlFromEmbeddedResource("CreatePayment"), parameters,
-                    commandType: CommandType.Text);
-            }
-        }
-
-        public async Task UpdateAsync(IPaymentAggregate aggregate)
-        {
-            await using var connection = new MySqlConnection(this.connectionStringProvider.PaymentsConnectionString);
-            {
-                var parameters = new
-                {
-                    aggregate.Id,
-                    aggregate.State.UpdatedOn,
-                };
-
-                await connection.ExecuteAsync(this.sqlHelper.GetSqlFromEmbeddedResource("UpdatePayment"), parameters,
-                    commandType: CommandType.Text);
-            }
-        }
-
-        public async Task DeleteAsync(IPaymentAggregate aggregate)
-        {
-            await using var connection = new MySqlConnection(this.connectionStringProvider.PaymentsConnectionString);
-            {
-                var parameters = new
-                {
-                    aggregate.Id,
-                };
-
-                await connection.ExecuteAsync(this.sqlHelper.GetSqlFromEmbeddedResource("DeletePayment"), parameters,
                     commandType: CommandType.Text);
             }
         }

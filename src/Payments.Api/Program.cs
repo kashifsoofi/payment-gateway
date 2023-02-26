@@ -71,8 +71,6 @@ CreateHostBuilder(args)
 
         var routing = transport.Routing();
         routing.RouteToEndpoint(typeof(CreatePayment), "Payments-Host");
-        routing.RouteToEndpoint(typeof(UpdatePayment), "Payments-Host");
-        routing.RouteToEndpoint(typeof(DeletePayment), "Payments-Host");
 
         endpointConfiguration.EnableCallbacks();
         endpointConfiguration.MakeInstanceUniquelyAddressable("1");

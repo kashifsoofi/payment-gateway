@@ -118,5 +118,21 @@
 
             result.ShouldHaveValidationErrorFor(x => x.CurrencyCode);
         }
+
+        [Theory]
+        [AutoData]
+        public void GivenInvalidReference_ShouldHaveValidationError(CreatePaymentRequest request)
+        {
+            request.CardNumber = "4242424242424242";
+            request.ExpiryMonth = 12;
+            request.ExpiryYear = DateTime.Now.Year + 1;
+            request.Cvv = "123";
+            request.CurrencyCode = "GBP";
+            request.Reference = "";
+
+            var result = sut.TestValidate(request);
+
+            result.ShouldHaveValidationErrorFor(x => x.CurrencyCode);
+        }
     }
 }

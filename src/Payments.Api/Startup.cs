@@ -59,7 +59,7 @@
             builder.RegisterInstance(databaseOptions).As<IDatabaseOptions>().AsSelf().SingleInstance();
             builder.RegisterType<ConnectionStringProvider>().As<IConnectionStringProvider>().SingleInstance();
 
-            builder.RegisterType<GetAllPaymentsQuery>().As<IGetAllPaymentsQuery>().SingleInstance();
+            builder.RegisterType<GetPaymentsByMerchantIdQuery>().As<IGetPaymentsByMerchantIdQuery>().SingleInstance();
             builder.RegisterType<GetPaymentByIdQuery>().As<IGetPaymentByIdQuery>().SingleInstance();
         }
 

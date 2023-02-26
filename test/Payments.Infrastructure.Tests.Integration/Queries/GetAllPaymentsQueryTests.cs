@@ -15,7 +15,7 @@
     {
         private readonly DatabaseHelper<Guid, PaymentAggregateState> aggregateNameDatabaseHelper;
 
-        private readonly GetAllPaymentsQuery sut;
+        private readonly GetPaymentsByMerchantIdQuery sut;
 
         public GetAllPaymentsQueryTests(DatabaseFixture databaseFixture)
         {
@@ -23,7 +23,7 @@
 
             aggregateNameDatabaseHelper = new DatabaseHelper<Guid, PaymentAggregateState>("Payment", connectionStringProvider.PaymentsConnectionString, x => x.Id);
 
-            this.sut = new GetAllPaymentsQuery(connectionStringProvider);
+            this.sut = new GetPaymentsByMerchantIdQuery(connectionStringProvider);
         }
 
         public Task InitializeAsync() => Task.CompletedTask;
@@ -37,7 +37,7 @@
         public async Task ExecuteAsync_GivenNoRecords_ShouldReturnEmptyCollection()
         {
             // Arrange
-            var result = await this.sut.ExecuteAsync();
+            var result = await this.sut.ExecuteAsync(Guid.Empty);
 
             // Assert
             result.Should().BeEmpty();
@@ -51,7 +51,7 @@
             await this.aggregateNameDatabaseHelper.AddRecordsAsync(states);
 
             // Act
-            var result = await this.sut.ExecuteAsync();
+            var result = await this.sut.ExecuteAsync(Guid.Empty);
 
             // Assert
             result.Should().BeEquivalentTo(states);

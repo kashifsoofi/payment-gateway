@@ -1,8 +1,6 @@
 ﻿SELECT
     Id,
 	MerchantId,
-    CreatedOn,
-    UpdatedOn,
 	CardHolderName,
 	CardNumber,
 	ExpiryMonth,
@@ -10,6 +8,8 @@
 	Amount,
 	CurrencyCode,
 	Reference,
-	Status
+	Status,
+	CreatedOn,
+	UpdatedOn
 FROM Payment
-WHERE Id = @Id
+WHERE MerchantId = @MerchantId

@@ -47,7 +47,7 @@ var host = CreateHostBuilder(args)
 
         var conventions = endpointConfiguration.Conventions();
         // conventions.DefiningCommandsAs(type => type.Namespace == "Payments.Contracts.Messages.Commands");
-        // conventions.DefiningEventsAs(type => type.Namespace == "Payments.Contracts.Messages.Events");
+        conventions.DefiningEventsAs(type => type.Namespace == "Payments.Contracts.Messages.Events");
         conventions.DefiningMessagesAs(type => type.Namespace == "Payments.Infrastructure.Messages.Responses");
 
         var regionEndpoint = RegionEndpoint.GetBySystemName("eu-west-1");
