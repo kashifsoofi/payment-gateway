@@ -18,7 +18,7 @@ will discuss each of these in more detail.
 ### Extra mile
 1. Implemented asynchronous request processing, allowing to independtly scale Api and Host (background message processor). Api further can be divided in a reader/writer api project.
 2. Implemented a client api project and added a sample that would requires the services to be started as described in Containerisation or it can be run from VS after updating the url in appsettings.json file of `PaymentGateway.ApiClient.Sample`
-3. There are some useful logs being generated, however I did not get the chance to add Seq or implement tracing.
+3. Logs are being forwarded to [Seq](https://datalust.co/seq) and can be viewed at http://localhost:8080, both during development and when running all applications as containers.
 
 ## Run with Visual Studio
 1. Clone repository locally.

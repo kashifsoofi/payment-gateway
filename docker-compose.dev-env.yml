@@ -6,6 +6,17 @@ networks:
     external: true
     
 services:
+  seq:
+    image: datalust/seq:2023.1
+    ports:
+      - "8080:80"
+      - "5341:5341"
+    volumes:
+      - /datadrive:/data
+    environment:
+      - ACCEPT_EULA=Y
+      - BASE_URI=https://seq.dptsprotrans.com
+
   payments.db:
     image: mysql:5.7
     ports:

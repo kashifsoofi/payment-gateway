@@ -45,6 +45,17 @@ services:
       dockerfile: Dockerfile
     command: -cs "server=payments.db;database=defaultdb;uid=root;password=Password123;SslMode=None;"
 
+  seq:
+    image: datalust/seq:2023.1
+    ports:
+      - "8080:80"
+      - "5341:5341"
+    volumes:
+      - /datadrive:/data
+    environment:
+      - ACCEPT_EULA=Y
+      - BASE_URI=https://seq.dptsprotrans.com
+
   acquiringbank.api:
     image: acquiringbank.api
     build:
@@ -60,6 +71,7 @@ services:
       - acquiringbank.api
       - payments.db.migrations
       - localstack-setup
+      - seq
     image: payments.api
     build:
       context: .
@@ -78,6 +90,7 @@ services:
       - NSERVICEBUS__SqsServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__S3ServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__SnsServiceUrlOverride=http://localstack:4566
+      - SEQ_SERVER_URL=http://seq:5341
     ports:
       - "5000:80"
     volumes:
@@ -91,6 +104,7 @@ services:
       - acquiringbank.api
       - payments.db.migrations
       - localstack-setup
+      - seq
     image: payments.host
     build:
       context: .
@@ -107,6 +121,7 @@ services:
       - NSERVICEBUS__SqsServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__S3ServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__SnsServiceUrlOverride=http://localstack:4566
+      - SEQ_SERVER_URL=http://seq:5341
 
 volumes:
   localstackdata:

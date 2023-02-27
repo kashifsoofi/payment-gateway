@@ -10,10 +10,12 @@ using Payments.Api;
 using Payments.Contracts.Messages.Commands;
 using Payments.Infrastructure.Configuration;
 
+var seqServerUrl = Environment.GetEnvironmentVariable("SEQ_SERVER_URL") ?? "http://localhost:5341";
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
     .Enrich.FromLogContext()
     .WriteTo.Console()
+    .WriteTo.Seq(seqServerUrl)
     .WriteTo.File("Payments.Api.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
