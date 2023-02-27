@@ -90,11 +90,7 @@
                     request.CurrencyCode,
                     request.Reference);
 
-            var response = await messageSession.Request<RequestResponse>(createPaymentCommand);
-            if (!response.Success)
-            {
-                throw response.Exception!;
-            }
+            await messageSession.Send(createPaymentCommand);
 
             return Accepted();
         }

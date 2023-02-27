@@ -17,6 +17,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   localstack-setup:
+    depends_on:
+      - localstack
     build:
       context: ./localstack-setup
     environment:
@@ -56,6 +58,8 @@ services:
       - payments.db
       - localstack
       - acquiringbank.api
+      - payments.db.migrations
+      - localstack-setup
     image: payments.api
     build:
       context: .
@@ -81,6 +85,8 @@ services:
       - payments.db
       - localstack
       - acquiringbank.api
+      - payments.db.migrations
+      - localstack-setup
     image: payments.host
     build:
       context: .
