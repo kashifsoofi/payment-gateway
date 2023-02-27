@@ -15,7 +15,8 @@
             {
                 var port = databaseOptions.Port ?? 3306;
                 var database = string.IsNullOrEmpty(databaseOptions.Database) ? "Payments" : databaseOptions.Database;
-                return $"Server={databaseOptions.Server};Port={port};Database={database};Uid={databaseOptions.Username};Pwd={databaseOptions.Password};";
+                var sslMode = databaseOptions.SslMode != null ? $"SSL Mode={databaseOptions.SslMode};" : "";
+                return $"Server={databaseOptions.Server};Port={port};Database={database};Uid={databaseOptions.Username};Pwd={databaseOptions.Password};{sslMode}";
             }
         }
     }

@@ -16,7 +16,13 @@ function Main() {
   elseif ($command -eq "stop") {
     Write-Host "Stoping payment gateway"
     docker-compose -f docker-compose.yml down -v --rmi local --remove-orphans
-  }  
+
+    docker image rm -f acquiringbank.api
+    docker image rm -f payments.api
+    docker image rm -f payments.host
+
+    docker rmi -f $(docker images -f "dangling=true" -q)
+  }
 }
 
 Main

@@ -17,6 +17,12 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Payments.Api.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+if (Environment.GetEnvironmentVariable("RUNNINGINCONTAINER") == "1")
+{
+    Log.Logger.Information("Running in container - delaying start");
+    Thread.Sleep(TimeSpan.FromSeconds(30));
+}
+
 CreateHostBuilder(args)
     .UseNServiceBus(context =>
     {

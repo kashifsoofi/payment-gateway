@@ -26,6 +26,12 @@ IConfiguration configuration = new ConfigurationBuilder()
               .AddEnvironmentVariables()
               .Build();
 
+if (Environment.GetEnvironmentVariable("RUNNINGINCONTAINER") == "1")
+{
+    Log.Logger.Information("Running in container - delaying start");
+    Thread.Sleep(TimeSpan.FromSeconds(30));
+}
+
 var host = CreateHostBuilder(args)
     .UseSerilog()
     .ConfigureServices((hostBuilderContext, services) =>

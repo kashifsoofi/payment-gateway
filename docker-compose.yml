@@ -22,8 +22,9 @@ services:
     build:
       context: ./localstack-setup
     environment:
-      - "AWS_SECRET_ACCESS_KEY=DUMMY_KEY"
-      - "AWS_ACCESS_KEY_ID=DUMMY_KEY"
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=DUMMY_KEY
+      - AWS_ACCESS_KEY_ID=DUMMY_KEY
 
   payments.db:
     image: mysql:5.7
@@ -50,8 +51,7 @@ services:
       context: .
       dockerfile: src/AcquiringBank.Api/Dockerfile
     ports:
-      - "5001:80"
-      - "4431:443"
+      - "4000:80"
 
   payments.api:
     depends_on:
@@ -65,17 +65,21 @@ services:
       context: .
       dockerfile: src/Payments.Api/Dockerfile
     environment:
+      - RUNNINGINCONTAINER=1
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_HTTPS_PORT=44374
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=DUMMY_KEY
+      - AWS_ACCESS_KEY_ID=DUMMY_KEY
       - DATABASE__SERVER=payments.db
       - DATABASE__PORT=3306
+      - DATABASE__SSLMODE=None
       - NSERVICEBUS__SqsServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__S3ServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__SnsServiceUrlOverride=http://localstack:4566
     ports:
       - "5000:80"
-      - "4430:443"
     volumes:
       - ~/.aspnet/https:/root/.aspnet/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
@@ -92,8 +96,13 @@ services:
       context: .
       dockerfile: src/Payments.Host/Dockerfile
     environment:
+      - RUNNINGINCONTAINER=1
       - DATABASE__SERVER=payments.db
       - DATABASE__PORT=3306
+      - DATABASE__SSLMODE=None
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=DUMMY_KEY
+      - AWS_ACCESS_KEY_ID=DUMMY_KEY
       - ACQUIRINGBANK__BASEURL=http://acquiringbank.api
       - NSERVICEBUS__SqsServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__S3ServiceUrlOverride=http://localstack:4566
