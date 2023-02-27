@@ -36,7 +36,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Domain.Tests.Unit"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Contracts.Tests.Unit", "test\Payments.Contracts.Tests.Unit\Payments.Contracts.Tests.Unit.csproj", "{388F7CD7-59FF-4053-8C6C-886CE5EFB96F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcquiringBank.Api", "src\AcquiringBank.Api\AcquiringBank.Api.csproj", "{860BD082-FD2A-49C7-923B-BFC5FD6EFD0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcquiringBank.Api", "src\AcquiringBank.Api\AcquiringBank.Api.csproj", "{860BD082-FD2A-49C7-923B-BFC5FD6EFD0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.ApiClient", "src\PaymentGateway.ApiClient\PaymentGateway.ApiClient.csproj", "{18FDF01B-46B6-44CB-9D66-36EAD485B068}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.ApiClient.Sample", "src\PaymentGateway.ApiClient.Sample\PaymentGateway.ApiClient.Sample.csproj", "{14FCE481-82EC-415B-A5CD-B7D248A76478}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,6 +96,14 @@ Global
 		{860BD082-FD2A-49C7-923B-BFC5FD6EFD0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{860BD082-FD2A-49C7-923B-BFC5FD6EFD0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{860BD082-FD2A-49C7-923B-BFC5FD6EFD0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18FDF01B-46B6-44CB-9D66-36EAD485B068}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18FDF01B-46B6-44CB-9D66-36EAD485B068}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18FDF01B-46B6-44CB-9D66-36EAD485B068}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18FDF01B-46B6-44CB-9D66-36EAD485B068}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14FCE481-82EC-415B-A5CD-B7D248A76478}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14FCE481-82EC-415B-A5CD-B7D248A76478}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14FCE481-82EC-415B-A5CD-B7D248A76478}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14FCE481-82EC-415B-A5CD-B7D248A76478}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
