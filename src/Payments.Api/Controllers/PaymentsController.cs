@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using Payments.Contracts.Messages.Commands;
     using Payments.Contracts.Requests;
-    using Payments.Infrastructure.Messages.Responses;
     using Payments.Infrastructure.Queries;
     using System.ComponentModel.DataAnnotations;
 
@@ -14,17 +13,20 @@
     [ApiController]
     public class PaymentsController : ControllerBase
     {
+        private readonly ILogger<PaymentsController> logger;
         private readonly IMessageSession messageSession;
         private readonly IGetPaymentsByMerchantIdQuery getAllPaymentsQuery;
         private readonly IGetPaymentByIdQuery getPaymentByIdQuery;
         private readonly IGetPaymentByIdAndMerchantIdQuery getPaymentByIdAndMerchantIdQuery;
 
         public PaymentsController(
+            ILogger<PaymentsController> logger,
             IMessageSession messageSession,
             IGetPaymentsByMerchantIdQuery getAllPaymentsQuery,
             IGetPaymentByIdQuery getPaymentByIdQuery,
             IGetPaymentByIdAndMerchantIdQuery getPaymentByIdAndMerchantIdQuery)
         {
+            this.logger = logger;
             this.messageSession = messageSession;
             this.getAllPaymentsQuery = getAllPaymentsQuery;
             this.getPaymentByIdQuery = getPaymentByIdQuery;
@@ -40,6 +42,7 @@
                 return BadRequest("merchantId cannot be default value.");
             }
 
+            logger.LogInformation("GET Payments called for MerchantId:[{merchantId}]", merchantId);
             var result = await this.getAllPaymentsQuery.ExecuteAsync(merchantId);
             return Ok(result);
         }
@@ -58,6 +61,8 @@
                 return BadRequest("id cannot be defaul value.");
             }
 
+            logger.LogInformation("GET Payment called for MerchantId:[{merchantId}] and PaymentId:[{paymentId}]", merchantId, id);
+
             var result = await getPaymentByIdAndMerchantIdQuery.ExecuteAsync(id, merchantId);
             return result == null ? (ActionResult)NotFound() : Ok(result);
         }
@@ -71,11 +76,15 @@
                 return BadRequest("merchantId cannot be default value.");
             }
 
+            logger.LogInformation("CREATE Payment called for MerchantId:[{merchantId}] and PaymentId:[{id}]", merchantId, request.Id);
+
             var result = await getPaymentByIdQuery.ExecuteAsync(request.Id);
             if (result != null)
             {
+                logger.LogInformation("Create Payment called for duplicate PaymentId:[{id}]", request.Id);
                 return Conflict();
             }
+
 
             var createPaymentCommand =
                 new CreatePayment(

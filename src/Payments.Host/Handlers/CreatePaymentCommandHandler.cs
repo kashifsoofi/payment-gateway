@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
     using NServiceBus;
     using Payments.Contracts.Messages.Commands;
     using Payments.Domain.Aggregates.Payment;
@@ -10,11 +11,16 @@
 
     public class CreatePaymentCommandHandler : IHandleMessages<CreatePayment>
     {
+        private readonly ILogger<CreatePaymentCommandHandler> logger;
         private readonly IPaymentAggregateReadRepository aggregateReadRepository;
         private readonly IPaymentAggregateWriteRepository aggregateWriteRepository;
 
-        public CreatePaymentCommandHandler(IPaymentAggregateReadRepository aggregateReadRepository, IPaymentAggregateWriteRepository aggregateWriteRepository)
+        public CreatePaymentCommandHandler(
+            ILogger<CreatePaymentCommandHandler> logger,
+            IPaymentAggregateReadRepository aggregateReadRepository,
+            IPaymentAggregateWriteRepository aggregateWriteRepository)
         {
+            this.logger = logger;
             this.aggregateReadRepository = aggregateReadRepository;
             this.aggregateWriteRepository = aggregateWriteRepository;
         }
@@ -37,11 +43,12 @@
                 await aggregate.Create(command);
 
                 await PersistAndPublishAsync(aggregate, context);
-                await context.Reply(new RequestResponse(true)).ConfigureAwait(false);
+                logger.LogInformation("Payment created for MerchantId:[{merchantId}] and PaymentId:[{paymentId}]", command.MerchantId, command.Id);
+                // await context.Reply(new RequestResponse(true)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.LogError(e, "Error creating payment");
                 await context.Reply(new RequestResponse(e)).ConfigureAwait(false);
             }
         }

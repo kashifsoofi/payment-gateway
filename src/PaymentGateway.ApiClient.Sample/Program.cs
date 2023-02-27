@@ -4,6 +4,7 @@ using PaymentGateway.ApiClient.Requests;
 using PaymentGateway.ApiClient.Responses;
 using PaymentGateway.ApiClient.Sample;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 IConfiguration configuration = new ConfigurationBuilder()
               .AddJsonFile("appsettings.json", true, true)
@@ -29,11 +30,18 @@ Console.WriteLine($"Create Payment result: {result}, PaymentId: {paymentId1}");
 (result, var paymentId2) = await CreatePaymentAsync(paymentGatewayApiClient, merchantId, "4242424242424242", "REF002");
 Console.WriteLine($"Create Payment result: {result}, PaymentId: {paymentId2}");
 
+var jsonSerializerOptions = new JsonSerializerOptions
+{
+    WriteIndented = true,
+    
+};
+jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+
 var payment = await GetPayment(paymentGatewayApiClient, merchantId, paymentId1);
-Console.WriteLine($"Payment details: {JsonSerializer.Serialize(payment, new JsonSerializerOptions { WriteIndented = true })}");
+Console.WriteLine($"Payment details: {JsonSerializer.Serialize(payment, jsonSerializerOptions)}");
 
 var payments = await paymentGatewayApiClient.GetAllPaymentsAsync(merchantId);
-Console.WriteLine($"Payments: {JsonSerializer.Serialize(payments, new JsonSerializerOptions { WriteIndented = true })}");
+Console.WriteLine($"Payments: {JsonSerializer.Serialize(payments, jsonSerializerOptions)}");
 
 static async Task<PaymentResponse> GetPayment(
     PaymentGatewayApiClient paymentGatewayApiClient,

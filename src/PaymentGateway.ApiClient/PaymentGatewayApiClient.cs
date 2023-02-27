@@ -7,6 +7,7 @@
     using System.Net;
     using System.Net.Http.Json;
     using System.Text.Json;
+    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
     public class PaymentGatewayApiClient : IPaymentGatewayApiClient
@@ -14,10 +15,13 @@
         private const string PaymentsEndpoint = "api/payments";
 
         private readonly HttpClient httpClient;
+        private readonly JsonSerializerOptions jsonSerializerOptions;
 
         public PaymentGatewayApiClient(HttpClient httpClient)
         {
             this.httpClient = httpClient;
+            jsonSerializerOptions = new JsonSerializerOptions();
+            jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
         public PaymentGatewayApiClient(string baseUrl)
@@ -49,7 +53,7 @@
             response.EnsureSuccessStatusCode();
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<PaymentResponse>(responseContent)!;
+            return JsonSerializer.Deserialize<PaymentResponse>(responseContent, jsonSerializerOptions)!;
         }
 
         public async Task<IEnumerable<PaymentResponse>> GetAllPaymentsAsync(Guid merchantId)
@@ -61,7 +65,7 @@
             response.EnsureSuccessStatusCode();
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<PaymentResponse>>(responseContent)!;
+            return JsonSerializer.Deserialize<List<PaymentResponse>>(responseContent, jsonSerializerOptions)!;
         }
     }
 }
