@@ -50,6 +50,7 @@ services:
     ports:
       - "5001:80"
       - "4431:443"
+
   payments.api:
     depends_on:
       - payments.db
@@ -63,6 +64,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ASPNETCORE_HTTPS_PORT=44374
+      - DATABASE__SERVER=payments.db
+      - DATABASE__PORT=3306
+      - NSERVICEBUS__SqsServiceUrlOverride=http://localstack:4566
+      - NSERVICEBUS__S3ServiceUrlOverride=http://localstack:4566
+      - NSERVICEBUS__SnsServiceUrlOverride=http://localstack:4566
     ports:
       - "5000:80"
       - "4430:443"
@@ -80,9 +86,12 @@ services:
       context: .
       dockerfile: src/Payments.Host/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_HTTPS_PORT=44374
+      - DATABASE__SERVER=payments.db
+      - DATABASE__PORT=3306
+      - ACQUIRINGBANK__BASEURL=http://acquiringbank.api
+      - NSERVICEBUS__SqsServiceUrlOverride=http://localstack:4566
+      - NSERVICEBUS__S3ServiceUrlOverride=http://localstack:4566
+      - NSERVICEBUS__SnsServiceUrlOverride=http://localstack:4566
 
 volumes:
   localstackdata:
