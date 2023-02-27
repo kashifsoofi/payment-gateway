@@ -14,11 +14,14 @@ will discuss each of these in more detail.
 1. Client would be responsible for generating PaymentId, this would also service as Idempotency Key for our service.
 2. All requests must include a `MerchantId` as header, its a lightweight authentication, I did not get time to add API Key/JWT key authentication, so instead I assumed this authentication would be performed by the API Gateway.
 3. Create Payment request is asynchronous, I assumed there would be a lot of requests so the process of creating request is offloaded to the Host project that can be scaled independently.
+4. AcquiringBank API call is synchronous and it returns success/failure when returning response.
+
 
 ### Extra mile
 1. Implemented asynchronous request processing, allowing to independtly scale Api and Host (background message processor). Api further can be divided in a reader/writer api project.
 2. Implemented a client api project and added a sample that would requires the services to be started as described in Containerisation or it can be run from VS after updating the url in appsettings.json file of `PaymentGateway.ApiClient.Sample`
-3. Logs are being forwarded to [Seq](https://datalust.co/seq) and can be viewed at http://localhost:8080, both during development and when running all applications as containers.
+3. Acceptance test project using SpecFlow, idea is to run those after deployment it is missing cleanup so safer to run in environment where test data does not make any difference.
+4. Logs are being forwarded to [Seq](https://datalust.co/seq) and can be viewed at http://localhost:8080, both during development and when running all applications as containers.
 
 ## Run with Visual Studio
 1. Clone repository locally.
