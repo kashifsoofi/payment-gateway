@@ -1,21 +1,22 @@
 ﻿namespace Payments.Api
 {
+    using System.Text.Json.Serialization;
     using Autofac;
+    using FluentValidation;
+    using FluentValidation.AspNetCore;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
-    using Serilog;
-    using System.Text.Json.Serialization;
+    using OpenTelemetry.Trace;
+    using Payments.Contracts.Requests;
     using Payments.Infrastructure.Configuration;
     using Payments.Infrastructure.Database;
     using Payments.Infrastructure.Queries;
-    using FluentValidation.AspNetCore;
-    using Payments.Contracts.Requests;
-    using FluentValidation;
     using Prometheus;
+    using Serilog;
 
     public class Startup
     {
@@ -52,6 +53,13 @@
                     Description = "Payments Service.",
                 });
             });
+
+            services.AddOpenTelemetry()
+                .WithTracing(builder =>
+                {
+                    builder.AddAspNetCoreInstrumentation();
+                    builder.AddConsoleExporter();
+                });
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
