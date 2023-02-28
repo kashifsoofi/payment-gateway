@@ -13,12 +13,14 @@ namespace Payments.Api.Tests.Unit.Controllers
     using Payments.Infrastructure.Queries;
     using Moq;
     using AutoFixture.Xunit2;
+    using Microsoft.Extensions.Logging;
 
     public class PaymentControllerTests
     {
         private readonly Mock<IGetPaymentsByMerchantIdQuery> getAllPaymentsQueryMock;
         private readonly Mock<IGetPaymentByIdQuery> getPaymentByIdQueryMock;
         private readonly Mock<IGetPaymentByIdAndMerchantIdQuery> getPaymentByIdAndMerchantIdQueryMock;
+        private readonly Mock<ILogger<PaymentsController>> loggerMock;
 
         private readonly PaymentsController sut;
 
@@ -28,8 +30,9 @@ namespace Payments.Api.Tests.Unit.Controllers
             getAllPaymentsQueryMock = new Mock<IGetPaymentsByMerchantIdQuery>();
             getPaymentByIdQueryMock = new Mock<IGetPaymentByIdQuery>();
             getPaymentByIdAndMerchantIdQueryMock = new Mock<IGetPaymentByIdAndMerchantIdQuery>();
+            loggerMock = new Mock<ILogger<PaymentsController>>();
 
-            sut = new PaymentsController(messageSession, getAllPaymentsQueryMock.Object, getPaymentByIdQueryMock.Object, getPaymentByIdAndMerchantIdQueryMock.Object);
+            sut = new PaymentsController(loggerMock.Object, messageSession, getAllPaymentsQueryMock.Object, getPaymentByIdQueryMock.Object, getPaymentByIdAndMerchantIdQueryMock.Object);
         }
 
         [Theory]
