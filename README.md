@@ -22,6 +22,8 @@ will discuss each of these in more detail.
 2. Implemented a client api project and added a sample that would requires the services to be started as described in Containerisation or it can be run from VS after updating the url in appsettings.json file of `PaymentGateway.ApiClient.Sample`
 3. Acceptance test project using SpecFlow, idea is to run those after deployment it is missing cleanup so safer to run in environment where test data does not make any difference.
 4. Logs are being forwarded to [Seq](https://datalust.co/seq) and can be viewed at http://localhost:8080, both during development and when running all applications as containers.
+5. Prometheus is setup to collect basic metrics published by prometheus-net from Payments.Api and Payments.Host
+6. Grafana is setup with a dashboard with prometheus-net metrics.
 
 ## Run with Visual Studio
 1. Clone repository locally.
@@ -112,4 +114,4 @@ I have also added a PaymentGatewayApiClient project that can be packaged as a nu
 I have also added a Sample application using the PaymentGatewayApiClient. This requires all services are running using `payment-gateway.ps1` powershell script.
 
 ## References & Resources
-
+[prometheus-net Dashboard](https://github.com/AChehre/prometheus-net-dashboard)
