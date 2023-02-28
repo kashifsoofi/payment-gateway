@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
 WORKDIR /build
 
 # copy csproj and restore as distinct layers
@@ -20,7 +20,7 @@ FROM build AS publish
 RUN dotnet publish ./src/AcquiringBank.Api/AcquiringBank.Api.csproj -c Release -o /app --no-restore --no-build
 
 # App image
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine AS runtime
 WORKDIR /app
 COPY --from=publish /app ./
 ENTRYPOINT ["dotnet", "AcquiringBank.Api.dll"]
