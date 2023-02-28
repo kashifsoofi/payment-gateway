@@ -15,6 +15,7 @@
     using FluentValidation.AspNetCore;
     using Payments.Contracts.Requests;
     using FluentValidation;
+    using Prometheus;
 
     public class Startup
     {
@@ -67,6 +68,8 @@
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMetricServer();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -95,11 +98,16 @@
             app.UseSerilogRequestLogging();
 
             app.UseRouting();
+            app.UseHttpMetrics(options =>
+            {
+                options.AddCustomLabel("host", context => context.Request.Host.Host);
+            });
             app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapMetrics();
             });
         }
     }
