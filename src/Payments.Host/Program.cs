@@ -13,6 +13,7 @@ using Serilog;
 using Serilog.Events;
 using Payments.Host;
 using Payments.Infrastructure.Configuration;
+using Prometheus;
 
 var seqServerUrl = Environment.GetEnvironmentVariable("SEQ_SERVER_URL") ?? "http://localhost:5341";
 Log.Logger = new LoggerConfiguration()
@@ -33,6 +34,11 @@ if (Environment.GetEnvironmentVariable("RUNNINGINCONTAINER") == "1")
     Log.Logger.Information("Running in container - delaying start");
     Thread.Sleep(TimeSpan.FromSeconds(30));
 }
+
+// Start the metrics server on your preferred port number.
+var port = configuration.GetValue<int>("Prometheus:Port");
+var server = new KestrelMetricServer(port: port);
+server.Start();
 
 var host = CreateHostBuilder(args)
     .UseSerilog()

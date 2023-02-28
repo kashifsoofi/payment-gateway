@@ -45,6 +45,24 @@ services:
       dockerfile: Dockerfile
     command: -cs "server=payments.db;database=defaultdb;uid=root;password=Password123;SslMode=None;"
 
+  prometheus:
+    image: prom/prometheus:v2.37.6
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus-container.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana-oss:9.3.6
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
   seq:
     image: datalust/seq:2023.1
     ports:
@@ -121,6 +139,7 @@ services:
       - NSERVICEBUS__SqsServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__S3ServiceUrlOverride=http://localstack:4566
       - NSERVICEBUS__SnsServiceUrlOverride=http://localstack:4566
+      - PROMETHEUS__PORT=80
       - SEQ_SERVER_URL=http://seq:5341
 
 volumes:

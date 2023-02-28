@@ -17,6 +17,37 @@ services:
       - ACCEPT_EULA=Y
       - BASE_URI=https://seq.dptsprotrans.com
 
+  prometheus:
+    image: prom/prometheus:v2.37.6
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus-host.yml:/etc/prometheus/prometheus.yml:ro
+    healthcheck:
+        test: wget -q --tries=1 -O- http://localhost:9090/
+        interval: 3s
+        timeout: 3s
+        retries: 10
+        start_period: 10s
+
+  grafana:
+    image: grafana/grafana-oss:9.3.6
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+        prometheus:
+            condition: service_healthy
+    healthcheck:
+        test: wget -q --tries=1 -O- http://localhost:3000/
+        interval: 3s
+        timeout: 3s
+        retries: 10
+        start_period: 10s
+
   payments.db:
     image: mysql:5.7
     ports:
