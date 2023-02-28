@@ -5,15 +5,15 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{6A858986-CF27-49A4-8098-F03D5F0BAF00}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Domain", "src\Payments.Domain\Payments.Domain.csproj", "{064FC8EF-E2FB-4BB5-A8D2-E94DB563696E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Domain", "src\Payments.Domain\Payments.Domain.csproj", "{064FC8EF-E2FB-4BB5-A8D2-E94DB563696E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Contracts", "src\Payments.Contracts\Payments.Contracts.csproj", "{CAE1E427-44E3-41E6-AC57-14B3573F60D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Contracts", "src\Payments.Contracts\Payments.Contracts.csproj", "{CAE1E427-44E3-41E6-AC57-14B3573F60D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Infrastructure", "src\Payments.Infrastructure\Payments.Infrastructure.csproj", "{733599C5-52A5-4E53-86DC-58A020FF822F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Infrastructure", "src\Payments.Infrastructure\Payments.Infrastructure.csproj", "{733599C5-52A5-4E53-86DC-58A020FF822F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Host", "src\Payments.Host\Payments.Host.csproj", "{5B64D911-DFAD-4C4D-B529-74D630409A1D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Host", "src\Payments.Host\Payments.Host.csproj", "{5B64D911-DFAD-4C4D-B529-74D630409A1D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Api", "src\Payments.Api\Payments.Api.csproj", "{6840318F-1198-445D-ADA0-2CE4608AC583}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Api", "src\Payments.Api\Payments.Api.csproj", "{6840318F-1198-445D-ADA0-2CE4608AC583}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A5352D27-B30E-4282-B4D1-DCF6935A8BA4}"
 	ProjectSection(SolutionItems) = preProject
@@ -24,19 +24,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		version.txt = version.txt
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Infrastructure.Tests.Integration", "test\Payments.Infrastructure.Tests.Integration\Payments.Infrastructure.Tests.Integration.csproj", "{1D385FFB-9AFC-43F6-BA82-8B8505E0BEEB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Infrastructure.Tests.Integration", "test\Payments.Infrastructure.Tests.Integration\Payments.Infrastructure.Tests.Integration.csproj", "{1D385FFB-9AFC-43F6-BA82-8B8505E0BEEB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Api.Tests.Acceptance", "test\Payments.Api.Tests.Acceptance\Payments.Api.Tests.Acceptance.csproj", "{D285CEEB-2E73-408B-8AEB-F0E19396CD86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Api.Tests.Acceptance", "test\Payments.Api.Tests.Acceptance\Payments.Api.Tests.Acceptance.csproj", "{D285CEEB-2E73-408B-8AEB-F0E19396CD86}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Api.Tests.Integration", "test\Payments.Api.Tests.Integration\Payments.Api.Tests.Integration.csproj", "{8E2842F1-1362-4110-8263-D5165D4349A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Api.Tests.Integration", "test\Payments.Api.Tests.Integration\Payments.Api.Tests.Integration.csproj", "{8E2842F1-1362-4110-8263-D5165D4349A5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Api.Tests.Unit", "test\Payments.Api.Tests.Unit\Payments.Api.Tests.Unit.csproj", "{A3AD1B98-ABF0-4C46-9488-5197E2D848A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Api.Tests.Unit", "test\Payments.Api.Tests.Unit\Payments.Api.Tests.Unit.csproj", "{A3AD1B98-ABF0-4C46-9488-5197E2D848A1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Domain.Tests.Unit", "test\Payments.Domain.Tests.Unit\Payments.Domain.Tests.Unit.csproj", "{88B8135D-975C-4D85-89B4-932B6467C8D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Domain.Tests.Unit", "test\Payments.Domain.Tests.Unit\Payments.Domain.Tests.Unit.csproj", "{88B8135D-975C-4D85-89B4-932B6467C8D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Contracts.Tests.Unit", "test\Payments.Contracts.Tests.Unit\Payments.Contracts.Tests.Unit.csproj", "{388F7CD7-59FF-4053-8C6C-886CE5EFB96F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Contracts.Tests.Unit", "test\Payments.Contracts.Tests.Unit\Payments.Contracts.Tests.Unit.csproj", "{388F7CD7-59FF-4053-8C6C-886CE5EFB96F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcquiringBank.Api", "src\AcquiringBank.Api\AcquiringBank.Api.csproj", "{860BD082-FD2A-49C7-923B-BFC5FD6EFD0E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcquiringBank.Api", "src\AcquiringBank.Api\AcquiringBank.Api.csproj", "{860BD082-FD2A-49C7-923B-BFC5FD6EFD0E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.ApiClient", "src\PaymentGateway.ApiClient\PaymentGateway.ApiClient.csproj", "{18FDF01B-46B6-44CB-9D66-36EAD485B068}"
 EndProject

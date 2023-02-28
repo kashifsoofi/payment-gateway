@@ -32,33 +32,26 @@ CreateHostBuilder(args)
         var nServiceBusOptions = configuration.GetSection("NServiceBus").Get<NServiceBusOptions>();
 
         var endpointConfiguration = new EndpointConfiguration("Payments.Api");
-        endpointConfiguration.DoNotCreateQueues();
 
         var conventions = endpointConfiguration.Conventions();
         conventions.DefiningCommandsAs(type => type.Namespace == "Payments.Contracts.Messages.Commands");
         conventions.DefiningEventsAs(type => type.Namespace == "Payments.Contracts.Messages.Events");
         conventions.DefiningMessagesAs(type => type.Namespace == "Payments.Infrastructure.Messages.Responses");
 
+        var awsCredentials = new AnonymousAWSCredentials();
         var amazonSqsConfig = new AmazonSQSConfig();
         if (!string.IsNullOrEmpty(nServiceBusOptions.SqsServiceUrlOverride))
         {
             amazonSqsConfig.ServiceURL = nServiceBusOptions.SqsServiceUrlOverride;
         }
+        var sqsClient = new AmazonSQSClient(awsCredentials, amazonSqsConfig);
 
-        var transport = endpointConfiguration.UseTransport<SqsTransport>();
-        transport.ClientFactory(() => new AmazonSQSClient(
-            new AnonymousAWSCredentials(),
-            amazonSqsConfig));
-
-        var amazonSimpleNotificationServiceConfig = new AmazonSimpleNotificationServiceConfig();
+        var amazonSnsConfig = new AmazonSimpleNotificationServiceConfig();
         if (!string.IsNullOrEmpty(nServiceBusOptions.SnsServiceUrlOverride))
         {
-            amazonSimpleNotificationServiceConfig.ServiceURL = nServiceBusOptions.SnsServiceUrlOverride;
+            amazonSnsConfig.ServiceURL = nServiceBusOptions.SnsServiceUrlOverride;
         }
-
-        transport.ClientFactory(() => new AmazonSimpleNotificationServiceClient(
-            new AnonymousAWSCredentials(),
-            amazonSimpleNotificationServiceConfig));
+        var snsClient = new AmazonSimpleNotificationServiceClient(awsCredentials, amazonSnsConfig);
 
         var amazonS3Config = new AmazonS3Config
         {
@@ -68,17 +61,17 @@ CreateHostBuilder(args)
         {
             amazonS3Config.ServiceURL = nServiceBusOptions.S3ServiceUrlOverride;
         }
+        var s3Client = new AmazonS3Client(awsCredentials, amazonS3Config);
 
-        var s3Configuration = transport.S3("payments", "api");
-        s3Configuration.ClientFactory(() => new AmazonS3Client(
-            new AnonymousAWSCredentials(),
-            amazonS3Config));
+        var transport = new SqsTransport(sqsClient, snsClient)
+        {
+            // S3 = new S3Settings("bucket", "payments-api", s3Client),
+        };
+        var routing = endpointConfiguration.UseTransport(transport);
+        routing.RouteToEndpoint(typeof(CreatePayment), "Payments-Host");
 
         endpointConfiguration.SendFailedMessagesTo("error");
         endpointConfiguration.EnableInstallers();
-
-        var routing = transport.Routing();
-        routing.RouteToEndpoint(typeof(CreatePayment), "Payments-Host");
 
         endpointConfiguration.EnableCallbacks();
         endpointConfiguration.MakeInstanceUniquelyAddressable("1");
