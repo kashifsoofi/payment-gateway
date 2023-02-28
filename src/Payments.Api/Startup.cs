@@ -1,5 +1,6 @@
 ﻿namespace Payments.Api
 {
+    using System.Reflection;
     using System.Text.Json.Serialization;
     using Autofac;
     using FluentValidation;
@@ -10,6 +11,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
+    using OpenTelemetry.Resources;
     using OpenTelemetry.Trace;
     using Payments.Contracts.Requests;
     using Payments.Infrastructure.Configuration;
@@ -54,9 +56,12 @@
                 });
             });
 
+            string applicationName = Assembly.GetExecutingAssembly().GetName().Name;
             services.AddOpenTelemetry()
                 .WithTracing(builder =>
                 {
+                    builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(applicationName));
+                    builder.AddSource("MySqlConnector");
                     builder.AddAspNetCoreInstrumentation();
                     builder.AddConsoleExporter();
                 });
