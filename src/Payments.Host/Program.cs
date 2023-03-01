@@ -14,7 +14,6 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Payments.Host;
 using Payments.Infrastructure.Configuration;
-using Prometheus;
 using Serilog;
 using Serilog.Events;
 
@@ -37,11 +36,6 @@ if (Environment.GetEnvironmentVariable("RUNNINGINCONTAINER") == "1")
     Log.Logger.Information("Running in container - delaying start");
     Thread.Sleep(TimeSpan.FromSeconds(30));
 }
-
-// Start the metrics server on your preferred port number.
-var port = configuration.GetValue<int>("Prometheus:Port");
-var server = new KestrelMetricServer(port: port);
-server.Start();
 
 var host = CreateHostBuilder(args)
     .UseSerilog()

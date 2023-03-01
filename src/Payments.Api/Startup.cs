@@ -18,7 +18,6 @@
     using Payments.Infrastructure.Configuration;
     using Payments.Infrastructure.Database;
     using Payments.Infrastructure.Queries;
-    using Prometheus;
     using Serilog;
 
     public class Startup
@@ -90,8 +89,6 @@
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseMetricServer();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -120,16 +117,11 @@
             app.UseSerilogRequestLogging();
 
             app.UseRouting();
-            app.UseHttpMetrics(options =>
-            {
-                options.AddCustomLabel("host", context => context.Request.Host.Host);
-            });
             app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapMetrics();
             });
         }
     }
