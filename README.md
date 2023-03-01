@@ -115,3 +115,7 @@ I have also added a Sample application using the PaymentGatewayApiClient. This r
 
 ## References & Resources
 [prometheus-net Dashboard](https://github.com/AChehre/prometheus-net-dashboard)
+[Adding distributed tracing instrumentation](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs)
+[MySqlConnector Tracing](https://mysqlconnector.net/tutorials/tracing/)
+[OpenTelemetry](https://docs.particular.net/nservicebus/operations/opentelemetry)
+[How to setup OpenTelemetry instrumentation in ASP.NET core](https://dev.to/jmourtada/how-to-setup-opentelemetry-instrumentation-in-aspnet-core-23p5)
