@@ -14,6 +14,10 @@ using Serilog.Events;
 using Payments.Host;
 using Payments.Infrastructure.Configuration;
 using Prometheus;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
+using System.Reflection;
 
 var seqServerUrl = Environment.GetEnvironmentVariable("SEQ_SERVER_URL") ?? "http://localhost:5341";
 Log.Logger = new LoggerConfiguration()
@@ -46,6 +50,17 @@ var host = CreateHostBuilder(args)
     {
         services.AddOptions();
         services.Configure<NServiceBusOptions>(configuration.GetSection("NServiceBus"));
+
+        string applicationName = Assembly.GetExecutingAssembly().GetName().Name;
+        services.AddOpenTelemetry()
+            .WithTracing(builder =>
+            {
+                builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(applicationName));
+                builder.AddSource("MySqlConnector");
+                builder.AddSource("NServiceBus.Core");
+                builder.AddHttpClientInstrumentation();
+                builder.AddConsoleExporter();
+            });
     })
     .ConfigureContainer((HostBuilderContext hostBuilderContext, ContainerBuilder builder) =>
     {
@@ -57,7 +72,7 @@ var host = CreateHostBuilder(args)
         var nServiceBusOptions = configuration.GetSection("NServiceBus").Get<NServiceBusOptions>();
 
         var endpointConfiguration = new EndpointConfiguration("Payments.Host");
-        endpointConfiguration.DoNotCreateQueues();
+        endpointConfiguration.EnableOpenTelemetry();
 
         var conventions = endpointConfiguration.Conventions();
         // conventions.DefiningCommandsAs(type => type.Namespace == "Payments.Contracts.Messages.Commands");
@@ -65,29 +80,20 @@ var host = CreateHostBuilder(args)
         conventions.DefiningMessagesAs(type => type.Namespace == "Payments.Infrastructure.Messages.Responses");
 
         var regionEndpoint = RegionEndpoint.GetBySystemName("eu-west-1");
-
+        var awsCredentials = new AnonymousAWSCredentials();
         var amazonSqsConfig = new AmazonSQSConfig();
-        amazonSqsConfig.RegionEndpoint = regionEndpoint;
         if (!string.IsNullOrEmpty(nServiceBusOptions.SqsServiceUrlOverride))
         {
             amazonSqsConfig.ServiceURL = nServiceBusOptions.SqsServiceUrlOverride;
         }
+        var sqsClient = new AmazonSQSClient(awsCredentials, amazonSqsConfig);
 
-        var transport = endpointConfiguration.UseTransport<SqsTransport>();
-        transport.ClientFactory(() => new AmazonSQSClient(
-            new AnonymousAWSCredentials(),
-            amazonSqsConfig));
-
-        var amazonSimpleNotificationServiceConfig = new AmazonSimpleNotificationServiceConfig();
-        amazonSimpleNotificationServiceConfig.RegionEndpoint = regionEndpoint;
+        var amazonSnsConfig = new AmazonSimpleNotificationServiceConfig();
         if (!string.IsNullOrEmpty(nServiceBusOptions.SnsServiceUrlOverride))
         {
-            amazonSimpleNotificationServiceConfig.ServiceURL = nServiceBusOptions.SnsServiceUrlOverride;
+            amazonSnsConfig.ServiceURL = nServiceBusOptions.SnsServiceUrlOverride;
         }
-
-        transport.ClientFactory(() => new AmazonSimpleNotificationServiceClient(
-            new AnonymousAWSCredentials(),
-            amazonSimpleNotificationServiceConfig));
+        var snsClient = new AmazonSimpleNotificationServiceClient(awsCredentials, amazonSnsConfig);
 
         var amazonS3Config = new AmazonS3Config
         {
@@ -97,11 +103,13 @@ var host = CreateHostBuilder(args)
         {
             amazonS3Config.ServiceURL = nServiceBusOptions.S3ServiceUrlOverride;
         }
+        var s3Client = new AmazonS3Client(awsCredentials, amazonS3Config);
 
-        var s3Configuration = transport.S3("payments", "api");
-        s3Configuration.ClientFactory(() => new AmazonS3Client(
-            new AnonymousAWSCredentials(),
-            amazonS3Config));
+        var transport = new SqsTransport(sqsClient, snsClient)
+        {
+            // S3 = new S3Settings("bucket", "payments-api", s3Client),
+        };
+        endpointConfiguration.UseTransport(transport);
 
         endpointConfiguration.SendFailedMessagesTo("error");
         endpointConfiguration.EnableInstallers();

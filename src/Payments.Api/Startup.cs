@@ -62,6 +62,7 @@
                 {
                     builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(applicationName));
                     builder.AddSource("MySqlConnector");
+                    builder.AddSource("NServiceBus.Core");
                     builder.AddAspNetCoreInstrumentation();
                     builder.AddConsoleExporter();
                 });
