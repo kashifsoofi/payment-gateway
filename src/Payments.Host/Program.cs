@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System.Reflection;
+using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.SimpleNotificationService;
@@ -8,16 +9,14 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NServiceBus;
-using Serilog;
-using Serilog.Events;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Payments.Host;
 using Payments.Infrastructure.Configuration;
 using Prometheus;
-using OpenTelemetry;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Resources;
-using System.Reflection;
+using Serilog;
+using Serilog.Events;
 
 var seqServerUrl = Environment.GetEnvironmentVariable("SEQ_SERVER_URL") ?? "http://localhost:5341";
 Log.Logger = new LoggerConfiguration()
@@ -59,6 +58,13 @@ var host = CreateHostBuilder(args)
                 builder.AddSource("MySqlConnector");
                 builder.AddSource("NServiceBus.Core");
                 builder.AddHttpClientInstrumentation();
+                builder.AddConsoleExporter();
+            })
+            .WithMetrics(builder =>
+            {
+                builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(applicationName));
+                builder.AddHttpClientInstrumentation();
+                builder.AddMeter("NServiceBus.Core");
                 builder.AddConsoleExporter();
             });
     })

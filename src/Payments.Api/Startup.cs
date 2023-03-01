@@ -11,6 +11,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
+    using OpenTelemetry.Metrics;
     using OpenTelemetry.Resources;
     using OpenTelemetry.Trace;
     using Payments.Contracts.Requests;
@@ -64,6 +65,13 @@
                     builder.AddSource("MySqlConnector");
                     builder.AddSource("NServiceBus.Core");
                     builder.AddAspNetCoreInstrumentation();
+                    builder.AddConsoleExporter();
+                })
+                .WithMetrics(builder =>
+                {
+                    builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(applicationName));
+                    builder.AddAspNetCoreInstrumentation();
+                    builder.AddMeter("NServiceBus.Core");
                     builder.AddConsoleExporter();
                 });
         }
