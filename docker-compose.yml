@@ -45,22 +45,35 @@ services:
       dockerfile: Dockerfile
     command: -cs "server=payments.db;database=defaultdb;uid=root;password=Password123;SslMode=None;"
 
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/config.yml" ]
+    volumes:
+      - ./tempo/config.yml:/etc/config.yaml
+  
   prometheus:
     image: prom/prometheus:v2.37.6
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus/prometheus-container.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
+  loki:
+    image: grafana/loki:latest
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+  
   grafana:
     image: grafana/grafana-oss:9.3.6
     ports:
       - 3000:3000
     volumes:
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      # - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
     depends_on:
       - prometheus
 

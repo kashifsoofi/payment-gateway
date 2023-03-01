@@ -9,16 +9,26 @@ receivers:
             - "https://*"
 
 exporters:
+  # traces
   otlp:
-    endpoint: "jaeger:4317"
+    endpoint: tempo:4317
     tls:
       insecure: true
-  logging:
+  # metrics
   prometheus:
-    endpoint: "otelcol:9464"
+    endpoint: 0.0.0.0:9464
     resource_to_telemetry_conversion:
       enabled: true
     enable_open_metrics: true
+  # logs
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    format: json
+    labels:
+      resource:
+        service.name: "service_name"
+        service.instance.id: "service_instance_id"
+
 processors:
   batch:
   spanmetrics:
@@ -35,8 +45,11 @@ service:
     traces:
       receivers: [otlp]
       processors: [spanmetrics, batch]
-      exporters: [logging, otlp]
+      exporters: [otlp]
     metrics:
       receivers: [otlp]
       processors: [transform, batch]
-      exporters: [prometheus, logging]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      exporters: [loki]
