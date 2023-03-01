@@ -9,6 +9,8 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenTelemetry.Exporter;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -45,6 +47,7 @@ var host = CreateHostBuilder(args)
         services.Configure<NServiceBusOptions>(configuration.GetSection("NServiceBus"));
 
         string applicationName = Assembly.GetExecutingAssembly().GetName().Name;
+        var otlpEndpoint = configuration.GetValue<string>("Otlp:Endpoint");
         services.AddOpenTelemetry()
             .WithTracing(builder =>
             {
@@ -53,6 +56,12 @@ var host = CreateHostBuilder(args)
                 builder.AddSource("NServiceBus.Core");
                 builder.AddHttpClientInstrumentation();
                 builder.AddConsoleExporter();
+                builder.AddOtlpExporter(exporterOptions =>
+                {
+                    exporterOptions.Endpoint = new Uri(otlpEndpoint);
+                    exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    exporterOptions.ExportProcessorType = ExportProcessorType.Simple;
+                });
             })
             .WithMetrics(builder =>
             {
@@ -60,6 +69,13 @@ var host = CreateHostBuilder(args)
                 builder.AddHttpClientInstrumentation();
                 builder.AddMeter("NServiceBus.Core");
                 builder.AddConsoleExporter();
+                builder.AddOtlpExporter((exporterOptions, metricReaderOptions) =>
+                {
+                    exporterOptions.Endpoint = new Uri(otlpEndpoint);
+                    exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    exporterOptions.ExportProcessorType = ExportProcessorType.Simple;
+                    metricReaderOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 5000;
+                });
             });
     })
     .ConfigureContainer((HostBuilderContext hostBuilderContext, ContainerBuilder builder) =>

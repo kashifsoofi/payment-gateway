@@ -17,6 +17,22 @@ services:
       - ACCEPT_EULA=Y
       - BASE_URI=https://seq.dptsprotrans.com
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.72.0
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    command: [ "--config=/etc/config.yml", "--config=/etc/config-extras.yml" ]
+    volumes:
+      - ./otel-collector/config.yml:/etc/config.yml
+      - ./otel-collector/config-extras.yml:/etc/config-extras.yml
+    ports:
+      - "4317"          # OTLP over gRPC receiver
+      - "4318:4318"     # OTLP over HTTP receiver
+      - "9464"          # Prometheus exporter
+      - "8888"          # metrics endpoint
+    
   prometheus:
     image: prom/prometheus:v2.37.6
     ports:

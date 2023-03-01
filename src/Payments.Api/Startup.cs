@@ -11,6 +11,9 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
+    using OpenTelemetry;
+    using OpenTelemetry.Exporter;
+    using OpenTelemetry.Instrumentation.AspNetCore;
     using OpenTelemetry.Metrics;
     using OpenTelemetry.Resources;
     using OpenTelemetry.Trace;
@@ -56,7 +59,9 @@
                 });
             });
 
-            string applicationName = Assembly.GetExecutingAssembly().GetName().Name;
+            var applicationName = Assembly.GetExecutingAssembly().GetName().Name;
+            var otlpEndpoint = Configuration.GetValue<string>("Otlp:Endpoint");
+            services.Configure<AspNetCoreInstrumentationOptions>(Configuration.GetSection("AspNetCoreInstrumentation"));
             services.AddOpenTelemetry()
                 .WithTracing(builder =>
                 {
@@ -65,6 +70,12 @@
                     builder.AddSource("NServiceBus.Core");
                     builder.AddAspNetCoreInstrumentation();
                     builder.AddConsoleExporter();
+                    builder.AddOtlpExporter(exporterOptions =>
+                    {
+                        exporterOptions.Endpoint = new Uri(otlpEndpoint);
+                        exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+                        exporterOptions.ExportProcessorType = ExportProcessorType.Simple;
+                    });
                 })
                 .WithMetrics(builder =>
                 {
@@ -72,6 +83,13 @@
                     builder.AddAspNetCoreInstrumentation();
                     builder.AddMeter("NServiceBus.Core");
                     builder.AddConsoleExporter();
+                    builder.AddOtlpExporter((exporterOptions, metricReaderOptions) =>
+                    {
+                        exporterOptions.Endpoint = new Uri(otlpEndpoint);
+                        exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+                        exporterOptions.ExportProcessorType = ExportProcessorType.Simple;
+                        metricReaderOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 5000;
+                    });
                 });
         }
 
